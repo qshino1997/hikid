@@ -3,7 +3,6 @@ package com.example.config.listener;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 import java.io.File;
-import java.net.URL;
 
 public class GoogleCloudCredentialsListener implements ServletContextListener {
 

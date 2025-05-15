@@ -1,7 +1,6 @@
 package com.example.dao;
 
 import com.example.dto.ProductDto;
-import com.example.entity.Product;
 
 import java.math.BigDecimal;
 import java.util.List;

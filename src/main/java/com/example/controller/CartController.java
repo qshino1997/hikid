@@ -1,7 +1,6 @@
 package com.example.controller;
 
 import com.example.dto.ProductDto;
-import com.example.entity.Product;
 import com.example.service.CartService;
 import com.example.service.ProductService;
 import com.example.service.impl.CartServiceImpl;

@@ -1,14 +1,8 @@
 package com.example.controller.ChatBotController;
 
 import com.example.service.ProductService;
-import com.google.cloud.dialogflow.v2.WebhookRequest;
-import com.google.cloud.dialogflow.v2.WebhookResponse;
-import com.google.cloud.dialogflow.v2.QueryResult;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.google.protobuf.Struct;
-import com.google.protobuf.Value;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;

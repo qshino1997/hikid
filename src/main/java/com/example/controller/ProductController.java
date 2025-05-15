@@ -2,7 +2,6 @@ package com.example.controller;
 
 import com.example.dto.ProductDto;
 import com.example.entity.Category;
-import com.example.entity.Product;
 import com.example.service.CategoryService;
 import com.example.service.ProductService;
 import lombok.RequiredArgsConstructor;

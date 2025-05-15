@@ -1,13 +1,9 @@
 package com.example.config.Auth;
 
-import com.example.dao.BaseDAO;
 import com.example.entity.User;
 import com.example.service.UserService;
 import lombok.RequiredArgsConstructor;
-import org.hibernate.query.Query;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;

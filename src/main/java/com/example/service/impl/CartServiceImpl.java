@@ -2,12 +2,10 @@ package com.example.service.impl;
 
 import com.example.dto.CartItem;
 import com.example.dto.ProductDto;
-import com.example.entity.Product;
 import com.example.service.CartService;
 
 import java.util.Collection;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 
 public class CartServiceImpl implements CartService {

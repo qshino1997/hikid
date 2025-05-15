@@ -1,7 +1,5 @@
 package com.example.dto;
 
-import com.example.entity.Category;
-import com.example.entity.Manufacturer;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

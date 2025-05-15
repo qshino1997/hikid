@@ -3,14 +3,9 @@ package com.example.controller.ChatBotController;
 import com.example.dto.chatbotDto.ChatResponse;
 import com.example.dto.chatbotDto.QuestionRequest;
 import com.example.service.ChatBotService.DialogflowService;
-import com.google.cloud.dialogflow.v2.Intent;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.io.IOException;
-import java.util.Arrays;
 
 @RestController
 @RequestMapping("/chatbot")

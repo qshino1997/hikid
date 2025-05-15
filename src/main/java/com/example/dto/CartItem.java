@@ -1,6 +1,5 @@
 package com.example.dto;
 
-import com.example.entity.Product;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

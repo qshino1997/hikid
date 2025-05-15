@@ -1,6 +1,5 @@
 package com.example.controller;
 
-import com.example.dto.CategoryDto;
 import com.example.entity.Category;
 import com.example.service.CategoryService;
 import lombok.RequiredArgsConstructor;
@@ -11,7 +10,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Controller
 @RequiredArgsConstructor
@@ -22,7 +20,6 @@ public class CategoryController {
     @GetMapping("/{parentId}/children")
     @ResponseBody
     public List<Category> children(@PathVariable Integer parentId) {
-        List<Category> category =  categoryService.getCategoryWithSubs(parentId);
         return categoryService.getCategoryWithSubs(parentId);
     }
 }

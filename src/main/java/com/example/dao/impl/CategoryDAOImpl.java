@@ -3,7 +3,6 @@ package com.example.dao.impl;
 import com.example.dao.BaseDAO;
 import com.example.dao.CategoryDAO;
 import com.example.entity.Category;
-import org.hibernate.SessionFactory;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;

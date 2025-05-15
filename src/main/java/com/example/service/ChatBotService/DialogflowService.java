@@ -1,21 +1,13 @@
 package com.example.service.ChatBotService;
 
 import com.google.api.gax.core.FixedCredentialsProvider;
-import com.google.auth.oauth2.ServiceAccountCredentials;
 import com.google.cloud.dialogflow.v2.*;
-import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 import com.google.auth.oauth2.GoogleCredentials;
 
 import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
-import javax.annotation.Resource;
-import javax.servlet.ServletContext;
 import java.io.*;
 import java.util.UUID;
-import java.util.concurrent.TimeUnit;
 
 @Service
 public class DialogflowService {
