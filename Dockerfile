@@ -8,3 +8,6 @@ RUN rm -rf /usr/local/tomcat/webapps/*
 COPY target/kid_store.war /usr/local/tomcat/webapps/ROOT.war
 
 # Mặc định CMD là chạy Tomcat
+
+EXPOSE 8080
+CMD ["catalina.sh", "run"]

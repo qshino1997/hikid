@@ -2,4 +2,6 @@ services:
   - type: web
     name: spring-dialogflow
     env: docker
-    plan: free
+    dockerfilePath: ./Dockerfile
+    instanceType: free
+    port: 8080
