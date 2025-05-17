@@ -1,7 +1,5 @@
 services:
   - type: web
     name: spring-dialogflow
-    env: java
-    buildCommand: ./mvnw clean install
-    startCommand: java -jar target/kid_store.jar
-    instanceType: free
+    env: docker
+    plan: free
