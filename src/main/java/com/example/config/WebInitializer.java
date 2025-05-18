@@ -20,7 +20,8 @@ public class WebInitializer implements WebApplicationInitializer {
     @Override
     public void onStartup(ServletContext servletContext) throws ServletException {
         // Sử dụng đường dẫn bí mật đã set trên Render
-        System.setProperty("GOOGLE_APPLICATION_CREDENTIALS", "/etc/secrets/dialogflow-key.json");
+        String credentialsPath = System.setProperty("GOOGLE_APPLICATION_CREDENTIALS", "/etc/secrets/dialogflow-key.json");
+        System.out.println("✅ GOOGLE_APPLICATION_CREDENTIALS đã được thiết lập đúng: " + credentialsPath);
 
         // 1) Đăng ký Google Cloud Listener trước để set GOOGLE_APPLICATION_CREDENTIALS
         servletContext.addListener((ServletContextListener) new GoogleCloudCredentialsListener());
