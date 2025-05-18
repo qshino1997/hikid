@@ -17,7 +17,6 @@ public class DialogflowService {
     @PostConstruct
     public void init() throws Exception {
         String credentialsPath = System.getProperty("GOOGLE_APPLICATION_CREDENTIALS");
-        System.out.println("✅ GOOGLE_APPLICATION_CREDENTIALS đã được thiết lập đúng: " + credentialsPath);
 
         File credentialsFile = new File(credentialsPath);
         if (!credentialsFile.exists()) {
