@@ -19,20 +19,8 @@ public class WebInitializer implements WebApplicationInitializer {
 
     @Override
     public void onStartup(ServletContext servletContext) throws ServletException {
-        String credentialsJson = System.getenv("DIALOGFLOW_CREDENTIALS_JSON");
-        if (credentialsJson != null) {
-            // Lưu ra file tạm
-            Path tempFile = null;
-            try {
-                tempFile = Files.createTempFile("dialogflow-key", ".json");
-                Files.write(tempFile, credentialsJson.getBytes(StandardCharsets.UTF_8));
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-            System.setProperty("GOOGLE_APPLICATION_CREDENTIALS", tempFile.toString());
-        } else {
-            throw new RuntimeException("Missing environment variable DIALOGFLOW_CREDENTIALS_JSON");
-        }
+        // Sử dụng đường dẫn bí mật đã set trên Render
+        System.setProperty("GOOGLE_APPLICATION_CREDENTIALS", "/etc/secrets/dialogflow-key.json");
 
         // 1) Đăng ký Google Cloud Listener trước để set GOOGLE_APPLICATION_CREDENTIALS
         servletContext.addListener((ServletContextListener) new GoogleCloudCredentialsListener());
