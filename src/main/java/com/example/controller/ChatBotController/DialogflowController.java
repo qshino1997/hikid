@@ -14,7 +14,7 @@ public class DialogflowController {
     private DialogflowService dialogflowService;
 
     // API để gửi câu hỏi tới Dialogflow và nhận phản hồi
-    @PostMapping("/ask")
+    @PostMapping(value = "/ask", produces = "application/json; charset=UTF-8")
     public ResponseEntity<?> askQuestion(@RequestBody QuestionRequest questionRequest) {
         String userQuery = questionRequest.getUserQuery();
         if (userQuery == null || userQuery.isBlank()) {
