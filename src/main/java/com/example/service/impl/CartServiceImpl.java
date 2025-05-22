@@ -13,6 +13,11 @@ public class CartServiceImpl implements CartService {
     private Map<Integer, CartItem> items = new LinkedHashMap<>();
 
     @Override
+    public void clear() {
+        items.clear();
+    }
+
+    @Override
     public void addItem(ProductDto p, int qty) {
         CartItem item = items.get(p.getProduct_id());
         if (item == null) {

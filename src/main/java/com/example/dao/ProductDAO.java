@@ -9,5 +9,5 @@ public interface ProductDAO {
     List<ProductDto> findAllByCatoryId(int id);
     ProductDto findById(int id);
 
-    BigDecimal findPriceByBrandAndAgeRange(String brand, String ageRange);
+    Integer findPriceByBrandAndAgeRange(String brand, String ageRange);
 }

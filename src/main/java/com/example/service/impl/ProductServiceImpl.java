@@ -44,7 +44,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public BigDecimal findPriceByBrandAndAgeRange(String brand, String ageRange) {
+    public Integer findPriceByBrandAndAgeRange(String brand, String ageRange) {
         return productDAO.findPriceByBrandAndAgeRange(brand,ageRange);
     }
 }

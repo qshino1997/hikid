@@ -16,9 +16,8 @@ public class ProductDAOImpl extends BaseDAO implements ProductDAO {
                 "p .appropriate_age_end, p.warning, p.instructions, p.storage_instructions, p.stock, " +
                 "p.manufacturer.id, p.manufacturer.name, p.manufacturer.country) " +
                 "from Product p where p.category.id = :id";
-        List<ProductDto> products = currentSession().createQuery(hql, ProductDto.class ).setParameter("id", id).getResultList();
 
-        return products;
+        return currentSession().createQuery(hql, ProductDto.class ).setParameter("id", id).getResultList();
     }
 
     @Override
@@ -34,7 +33,7 @@ public class ProductDAOImpl extends BaseDAO implements ProductDAO {
     }
 
     @Override
-    public BigDecimal findPriceByBrandAndAgeRange(String brand, String ageRange) {
+    public Integer findPriceByBrandAndAgeRange(String brand, String ageRange) {
         // Giải mã ageRange thành start và end (ví dụ "0-6 tháng")
         String[] parts = ageRange.split("[^0-9]+"); // tách chỉ số số
         int start = Integer.parseInt(parts[0]);
@@ -46,7 +45,7 @@ public class ProductDAOImpl extends BaseDAO implements ProductDAO {
                 + "  and p.appropriate_age_start = :start "
                 + "  and p.appropriate_age_end = :end";
         return currentSession()
-                .createQuery(hql, BigDecimal.class)
+                .createQuery(hql, Integer .class)
                 .setParameter("brand", brand)
                 .setParameter("start", start)
                 .setParameter("end", end)

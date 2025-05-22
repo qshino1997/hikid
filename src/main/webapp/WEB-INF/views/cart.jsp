@@ -1,13 +1,5 @@
-<%--
-  Created by IntelliJ IDEA.
-  User: Quang
-  Date: 5/12/2025
-  Time: 12:02 PM
-  To change this template use File | Settings | File Templates.
---%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %><html>
-
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -69,8 +61,10 @@
                     </table>
                     <p><strong>Tổng cộng:</strong> ${cart.total}₫</p>
                     <button type="submit" class="btn btn-primary">Cập nhật giỏ</button>
-                    <a href="${pageContext.request.contextPath}/checkout.html"
-                       class="btn btn-success">Tiến hành thanh toán</a>
+                    <!-- Nút thanh toán gọi đến /order/checkout -->
+                    <a href="<c:url value='/order/checkout'/>" class="btn btn-success">
+                        Tiến hành thanh toán
+                    </a>
                 </form>
             </c:otherwise>
         </c:choose>

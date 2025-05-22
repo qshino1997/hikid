@@ -21,7 +21,6 @@ public class DialogflowController {
             return ResponseEntity.badRequest()
                     .body(new ChatResponse("Vui lòng nhập câu hỏi"));
         }
-
         try {
             String reply = dialogflowService.getResponseFromDialogflow(userQuery);
             return ResponseEntity.ok(new ChatResponse(reply));

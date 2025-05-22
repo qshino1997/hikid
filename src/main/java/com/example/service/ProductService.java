@@ -8,5 +8,5 @@ import java.util.List;
 public interface ProductService {
     List<ProductDto> getAllProductByCatoryId(int id);
     ProductDto getProductById(int id);
-    BigDecimal findPriceByBrandAndAgeRange(String brand, String ageRange);
+    Integer findPriceByBrandAndAgeRange(String brand, String ageRange);
 }

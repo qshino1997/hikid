@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -87,13 +88,17 @@ public class SecurityConfig {
         @Override
         protected void configure(HttpSecurity http) throws Exception {
             http
+                    .csrf().disable()
                     .authorizeRequests()
+                    // 1) Cho phép mọi truy cập GET/POST đến webhook
+                    .antMatchers(HttpMethod.POST, "/payment/webhook","/dialogflow/webhook").permitAll()
                     // public: trang chính (chứa modal), và static resources
                     .antMatchers("/", "/css/**", "/js/**",
                             "/user/login",
                             "/cart/**",
                             "/product/**",
-                            "/chatbot/**").permitAll()
+                            "/chatbot/**",
+                            "/order/**").permitAll()
                     // URL khác (ngoại trừ /admin/** đã bị AdminConfig chặn) yêu cầu role USER
                     .anyRequest().hasRole("USER")
                     .and()
@@ -104,14 +109,14 @@ public class SecurityConfig {
                     .passwordParameter("password")       // đọc trường password
                     .defaultSuccessUrl("/", true)
 //                    .failureUrl("/?error=true")
-                    .permitAll()
-                    .and()
+                    .permitAll();
+//                    .and()
 //                    .logout()
 //                    .logoutUrl("/logout")
 //                    .logoutSuccessUrl("/")
 //                    .permitAll()
 //                    .and()
-                    .csrf().disable();
+//                    .csrf().disable();
         }
 
         @Override

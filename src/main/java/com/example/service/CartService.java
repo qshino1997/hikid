@@ -13,4 +13,5 @@ public interface CartService {
     int getTotalQuantity();
     long getTotal();
     boolean isEmpty();
+    void clear();
 }

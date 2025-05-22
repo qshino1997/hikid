@@ -10,7 +10,6 @@ public class UserLoginController {
 
     @GetMapping("/login")
     public String login(){
-        System.out.println("hy login");
         return "home";
     }
 }

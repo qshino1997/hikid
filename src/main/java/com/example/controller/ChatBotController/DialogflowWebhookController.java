@@ -6,9 +6,14 @@ import com.google.gson.JsonParser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.StreamUtils;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
 import java.math.BigDecimal;
+import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
 import java.util.Map;
 
 @RestController
@@ -18,10 +23,14 @@ public class DialogflowWebhookController {
     @Autowired
     private ProductService productService;  // Service bạn tự viết để truy vấn DB
 
-    @PostMapping(path = "/webhook",
+    @PostMapping(value = "/webhook",
             consumes = MediaType.APPLICATION_JSON_VALUE,
-            produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<String>  handleWebhook(@RequestBody String  payload) {
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public ResponseEntity<?> handleWebhook(HttpServletRequest request) throws IOException {
+        byte[] bytes = StreamUtils.copyToByteArray(request.getInputStream());
+        String payload = new String(bytes, StandardCharsets.UTF_8);
+        System.out.println(payload);
         // 1. Parse payload thành JsonObject
         JsonObject body = JsonParser.parseString(payload).getAsJsonObject();
 
@@ -54,7 +63,7 @@ public class DialogflowWebhookController {
             } else if (ageRange.isEmpty()) {
                 replyText = String.format("Bạn hỏi sữa %s cho bé độ tuổi nào?", productName);
             } else {
-                BigDecimal price = productService.findPriceByBrandAndAgeRange(productName, ageRange);
+                BigDecimal price = BigDecimal.valueOf(productService.findPriceByBrandAndAgeRange(productName, ageRange));
                 if (price != null) {
                     replyText = String.format("Giá %s (%s) hiện tại là %,d₫.",
                             productName, ageRange, price.longValue());
@@ -69,13 +78,17 @@ public class DialogflowWebhookController {
         }
 
         // 5. Tạo response JSON
+        Map<String, String> map = new HashMap<>();
+        map.put("fulfillmentText", replyText);
+
+
         JsonObject jsonResponse = new JsonObject();
         jsonResponse.addProperty("fulfillmentText", replyText);
 
         // 6. Trả về dưới dạng String
         return ResponseEntity.ok()
                 .contentType(MediaType.APPLICATION_JSON)
-                .body(jsonResponse.toString());
+                .body(map);
 
     }
 }
