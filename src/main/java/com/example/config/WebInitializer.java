@@ -1,47 +1,54 @@
 package com.example.config;
 
-import com.example.config.listener.GoogleCloudCredentialsListener;
-import org.springframework.web.WebApplicationInitializer;
-import org.springframework.web.context.ContextLoaderListener;
-import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
-import org.springframework.web.servlet.DispatcherServlet;
+import org.springframework.web.filter.CharacterEncodingFilter;
+import org.springframework.web.servlet.support.AbstractAnnotationConfigDispatcherServletInitializer;
 
-import javax.servlet.ServletContext;
-import javax.servlet.ServletContextListener;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRegistration;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
+import javax.servlet.*;
+import java.io.File;
 
-public class WebInitializer implements WebApplicationInitializer {
+
+public class WebInitializer extends AbstractAnnotationConfigDispatcherServletInitializer {
 
     @Override
     public void onStartup(ServletContext servletContext) throws ServletException {
-        // Sử dụng đường dẫn bí mật đã set trên Render
-        String credentialsPath = System.setProperty("GOOGLE_APPLICATION_CREDENTIALS", "/etc/secrets/dialogflow-key.json");
-        System.out.println("GOOGLE_APPLICATION_CREDENTIALS đã được thiết lập đúng: " + credentialsPath);
-        System.out.println("Đang thiết lập GOOGLE_APPLICATION_CREDENTIALS từ WebInitializer");
+        // 0) Thiết lập GOOGLE_APPLICATION_CREDENTIALS trước khi khởi Spring
+//        String real = servletContext.getRealPath("/WEB-INF/credentials/dialogflow-key.json");
+        System.setProperty("GOOGLE_APPLICATION_CREDENTIALS", "/etc/secrets/dialogflow-key.json");
 
-        // 1) Đăng ký Google Cloud Listener trước để set GOOGLE_APPLICATION_CREDENTIALS
-        servletContext.addListener((ServletContextListener) new GoogleCloudCredentialsListener());
+//        if (real != null && new File(real).exists()) {
+//            System.setProperty("GOOGLE_APPLICATION_CREDENTIALS", real);
+//            servletContext.log("Set GOOGLE_APPLICATION_CREDENTIALS = " + real);
+//        } else {
+//            servletContext.log("WARNING: credentials file not found at " + real);
+//        }
 
-        // 2) Root ApplicationContext chứa AppConfig
-        AnnotationConfigWebApplicationContext rootContext = new AnnotationConfigWebApplicationContext();
-        rootContext.register(AppConfig.class);
-        servletContext.addListener(new ContextLoaderListener(rootContext));
+        // 1) Gọi vào Spring để khởi ContextLoaderListener và DispatcherServlet
+        super.onStartup(servletContext);
+    }
 
-        // 3) Web ApplicationContext chứa WebConfig
-        AnnotationConfigWebApplicationContext webContext = new AnnotationConfigWebApplicationContext();
-        webContext.register(WebConfig.class);
+    @Override
+    protected Filter[] getServletFilters() {
+        CharacterEncodingFilter encodingFilter = new CharacterEncodingFilter();
+        encodingFilter.setEncoding("UTF-8");
+        encodingFilter.setForceEncoding(true);
+        return new Filter[]{ encodingFilter };
+    }
 
-        // 4) Đăng ký DispatcherServlet
-        ServletRegistration.Dynamic dispatcher = servletContext.addServlet(
-                "dispatcher", new DispatcherServlet(webContext)
-        );
-        dispatcher.setLoadOnStartup(1);
-        dispatcher.addMapping("/");
+    // Root context (AppConfig)
+    @Override
+    protected Class<?>[] getRootConfigClasses() {
+        return new Class[]{ AppConfig.class };
+    }
 
+    // Web context (WebConfig)
+    @Override
+    protected Class<?>[] getServletConfigClasses() {
+        return new Class[]{ WebConfig.class };
+    }
+
+    // Mapping cho DispatcherServlet
+    @Override
+    protected String[] getServletMappings() {
+        return new String[]{ "/" };
     }
 }
