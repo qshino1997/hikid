@@ -1,7 +1,9 @@
 package com.example.service.impl;
 
 import com.example.dao.OrderDao;
+import com.example.dto.PageResult;
 import com.example.entity.Order;
+import com.example.entity.OrderItem;
 import com.example.service.CartService;
 import com.example.service.OrderService;
 import com.google.gson.JsonObject;
@@ -15,8 +17,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.servlet.http.HttpSession;
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -64,10 +68,10 @@ public class OrderServiceImpl implements OrderService {
                 .setInvoiceNumber(order.getOrder_id().toString());
 
         RedirectUrls urls = new RedirectUrls()
-//                .setCancelUrl("https://059d-2405-4802-a5fe-1f50-959d-f90b-890-1b5e.ngrok-free.app/cart")
-//                .setReturnUrl("https://059d-2405-4802-a5fe-1f50-959d-f90b-890-1b5e.ngrok-free.app/order/success");
-                .setCancelUrl("https://hikid.onrender.com/cart")
-                .setReturnUrl("https://hikid.onrender.com/order/success");
+                .setCancelUrl("https://059d-2405-4802-a5fe-1f50-959d-f90b-890-1b5e.ngrok-free.app/cart")
+                .setReturnUrl("https://059d-2405-4802-a5fe-1f50-959d-f90b-890-1b5e.ngrok-free.app/order/success");
+//                .setCancelUrl("https://hikid.onrender.com/cart")
+//                .setReturnUrl("https://hikid.onrender.com/order/success");
         Payment payment = new Payment()
                 .setIntent("sale")
                 .setPayer(payer)
@@ -110,5 +114,25 @@ public class OrderServiceImpl implements OrderService {
             // Log: không tìm thấy order nào với paymentId này
             System.err.println("Webhook: Order not found for paymentId= " + paymentId);
         }
+    }
+
+    @Override
+    public List<Order> findOrders(LocalDate startDate, LocalDate endDate, String keyword, int page, int size) {
+        return orderDao.findByDateRange(startDate, endDate, keyword, page, size);
+    }
+
+    @Override
+    public long countOrders(LocalDate startDate, LocalDate endDate, String keyword) {
+        return orderDao.countOrders(startDate, endDate, keyword);
+    }
+
+    @Override
+    public Map<LocalDate, Long> countOrdersByDate(LocalDate startDate, LocalDate endDate) {
+        return orderDao.countOrdersByDate(startDate, endDate);
+    }
+
+    @Override
+    public List<OrderItem> findOrdersByOrderItemId(int orderId) {
+        return orderDao.findOrdersByOrderItemId(orderId);
     }
 }

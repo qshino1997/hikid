@@ -2,41 +2,23 @@ package com.example.controller.Payment;
 
 import com.example.service.CartService;
 import com.example.service.OrderService;
-import com.example.util.HttpUtil;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import com.paypal.base.rest.APIContext;
-import com.paypal.base.rest.OAuthTokenCredential;
 import com.paypal.base.rest.PayPalRESTException;
 
-import com.paypal.base.rest.PayPalResource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
-import org.springframework.http.*;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.client.RestTemplate;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
-import java.io.BufferedReader;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
 
 @Controller
 @RequestMapping("/order")
-public class OrderController {
+public class PaymentOrderController {
 
     @Autowired
     private OrderService orderService;
-
-    @Autowired
-    private APIContext apiContext;
-
-    @Autowired
-    private Environment env;
 
     /**
      * Bắt đầu thanh toán: tạo Order, gọi PayPal, redirect sang PayPal

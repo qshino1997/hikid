@@ -21,10 +21,11 @@ public class LoginSuccessHandler implements AuthenticationSuccessHandler {
         // 3. Chuyển hướng (redirect) về trang phù hợp theo role
         authentication.getAuthorities().forEach(grantedAuthority -> {
             try {
-                if (grantedAuthority.getAuthority().equals("ROLE_ADMIN")) {
-                    response.sendRedirect("/admin/dashboard");
+                if (grantedAuthority.getAuthority().equals("ROLE_ADMIN") || grantedAuthority.getAuthority().equals("ROLE_MANAGER")) {
+                    response.sendRedirect("/admin/");
                 } else {
-                    response.sendRedirect("/home");
+                    response.sendRedirect("/");
+
                 }
             } catch (IOException e) {
                 e.printStackTrace();

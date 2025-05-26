@@ -24,20 +24,23 @@ public class SecurityConfig {
                 .antMatchers("/resources/**", "/css/**", "/js/**", "/images/**");
     }
 
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+
     //====================================================
     // 1) Admin security – chạy trước (Order = 1)
     //====================================================
     @Configuration
-    @Order(2)
+    @Order(1)
     public static class AdminSecurityConfig extends WebSecurityConfigurerAdapter {
 
         @Autowired
         private CustomUserDetailsService userDetailsService;
 
-        @Bean
-        public PasswordEncoder passwordEncoder() {
-            return new BCryptPasswordEncoder();
-        }
+        @Autowired
+        private PasswordEncoder _passwordEncoder;
 
         @Override
         protected void configure(HttpSecurity http) throws Exception {
@@ -45,7 +48,11 @@ public class SecurityConfig {
                     // Chỉ apply cho URL bắt đầu /admin/**
                     .requestMatcher(request -> request.getRequestURI().startsWith("/admin/"))
                     .authorizeRequests()
+                    .antMatchers("/","/admin/login").permitAll()
                     .anyRequest().hasRole("ADMIN")
+                    // Chỉ admin mới vào /admin/**
+//                    .antMatchers("/admin/**").hasRole("ADMIN")
+//                    .anyRequest().authenticated()
                     .and()
                     .formLogin()
                     .loginPage("/admin/login")          // GET trang login admin
@@ -56,18 +63,18 @@ public class SecurityConfig {
 //                    .failureUrl("/login/admin?error=true")
                     .permitAll()
                     .and()
-//                    .logout()
-//                    .logoutUrl("/admin/logout")
-//                    .logoutSuccessUrl("/login/admin?logout")
-//                    .permitAll()
-//                    .and()
+                    .logout()
+                    .logoutUrl("/admin/logout")
+                    .logoutSuccessUrl("/admin/login?logout")
+                    .permitAll()
+                    .and()
                     .csrf().disable();
         }
 
         @Override
         protected void configure(AuthenticationManagerBuilder auth) throws Exception {
             auth.userDetailsService(userDetailsService)
-                    .passwordEncoder(passwordEncoder());  // Sử dụng PasswordEncoder
+                    .passwordEncoder(_passwordEncoder);  // Sử dụng PasswordEncoder
         }
     }
 
@@ -75,20 +82,19 @@ public class SecurityConfig {
     // 2) User security – chạy sau (Order = 2)
     //====================================================
     @Configuration
-    @Order(1)
+    @Order(2)
     public static class UserSecurityConfig extends WebSecurityConfigurerAdapter {
         @Autowired
         private CustomUserDetailsService userDetailsService;
 
-        @Bean
-        public PasswordEncoder passwordEncoder() {
-            return new BCryptPasswordEncoder();
-        }
+        @Autowired
+        private PasswordEncoder _passwordEncoder;
 
         @Override
         protected void configure(HttpSecurity http) throws Exception {
             http
                     .csrf().disable()
+                    .requestMatcher(request -> request.getRequestURI().startsWith("/"))
                     .authorizeRequests()
                     // 1) Cho phép mọi truy cập GET/POST đến webhook
                     .antMatchers(HttpMethod.POST, "/payment/webhook","/dialogflow/webhook").permitAll()
@@ -107,7 +113,7 @@ public class SecurityConfig {
                     .loginProcessingUrl("/user/login") // POST form modal gửi đến
                     .usernameParameter("email")          // đọc trường email
                     .passwordParameter("password")       // đọc trường password
-                    .defaultSuccessUrl("/", true)
+                    .successHandler(new LoginSuccessHandler())   // <–– dùng handler custom
 //                    .failureUrl("/?error=true")
                     .permitAll();
 //                    .and()
@@ -122,7 +128,7 @@ public class SecurityConfig {
         @Override
         protected void configure(AuthenticationManagerBuilder auth) throws Exception {
             auth.userDetailsService(userDetailsService)
-                    .passwordEncoder(passwordEncoder());  // Sử dụng PasswordEncoder
+                    .passwordEncoder(_passwordEncoder);  // Sử dụng PasswordEncoder
         }
     }
 }

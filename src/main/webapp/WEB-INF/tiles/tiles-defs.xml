@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE tiles-definitions PUBLIC
+        "-//Apache Software Foundation//DTD Tiles Configuration 3.0//EN"
+        "http://tiles.apache.org/dtds/tiles-config_3_0.dtd">
+<tiles-definitions>
+    <definition name="base.layout" template="/WEB-INF/views/admin/layout.jsp">
+        <put-attribute name="header" value="/WEB-INF/views/admin/fragments/header.jsp"/>
+        <put-attribute name="sidebar" value="/WEB-INF/views/admin/fragments/sidebar.jsp"/>
+        <put-attribute name="body"     value=""/>
+    </definition>
+
+    <definition name="admin.user" extends="base.layout">
+        <put-attribute name="body" value="/WEB-INF/views/admin/user.jsp"/>
+    </definition>
+    <definition name="admin.customer" extends="base.layout">
+        <put-attribute name="body" value="/WEB-INF/views/admin/customer.jsp"/>
+    </definition>
+    <definition name="admin.order" extends="base.layout">
+        <put-attribute name="body" value="/WEB-INF/views/admin/order.jsp"/>
+    </definition>
+    <!-- ... -->
+</tiles-definitions>

@@ -37,6 +37,9 @@ public class User {
     )
     private List<Role> roles;
 
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private UserProfile profile;
+
     @Column(name = "created_at")
     private String created_at;
 

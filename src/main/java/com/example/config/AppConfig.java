@@ -1,6 +1,5 @@
 package com.example.config;
 
-import com.example.config.listener.GoogleCloudCredentialsListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -27,11 +26,6 @@ import java.util.Properties;
         "classpath:paypal.properties"
 })
 public class AppConfig extends WebMvcConfigurerAdapter {
-
-    @Bean
-    public GoogleCloudCredentialsListener googleCloudCredentialsListener() {
-        return new GoogleCloudCredentialsListener();
-    }
 
     @Autowired
     private Environment env;

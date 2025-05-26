@@ -27,7 +27,7 @@ public class CustomUserDetailsService implements UserDetailsService {
         }
 
         // Chuyển UserEntity thành UserDetails
-        return new org.springframework.security.core.userdetails.User(user.getUsername(),
+        return new org.springframework.security.core.userdetails.User(user.getEmail(),
                 user.getPassword(), getAuthorities(user));
     }
 

@@ -4,20 +4,31 @@ import com.google.gson.Gson;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.format.FormatterRegistry;
+import org.springframework.format.datetime.standard.DateTimeFormatterRegistrar;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.json.GsonHttpMessageConverter;
 import org.springframework.orm.hibernate5.support.OpenSessionInViewFilter;
+import org.springframework.web.filter.CharacterEncodingFilter;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.view.InternalResourceViewResolver;
 
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Configuration
 @EnableWebMvc
 @ComponentScan(basePackages = "com.example")
 public class WebConfig implements WebMvcConfigurer {
+
+    @Override
+    public void addFormatters(FormatterRegistry registry) {
+        DateTimeFormatterRegistrar registrar = new DateTimeFormatterRegistrar();
+        registrar.setDateFormatter(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss"));
+        registrar.registerFormatters(registry);
+    }
 
     @Bean
     public Gson gson() {
@@ -49,6 +60,5 @@ public class WebConfig implements WebMvcConfigurer {
         // Thêm GsonHttpMessageConverter vào danh sách các converters
         converters.add(new GsonHttpMessageConverter());
     }
-
 }
 

@@ -6,10 +6,12 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table(name = "orders")
@@ -32,11 +34,16 @@ public class Order {
     @Column(name = "status", length = 30, nullable = false)
     private String status;  // NEW, PENDING_PAYMENT, PAID, FAILED…
 
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<OrderItem> items;
+
     @CreationTimestamp
+    @DateTimeFormat(pattern="dd/MM/yyyy")
     @Column(name = "created_at", updatable = false)
     private LocalDateTime created_at;
 
     @UpdateTimestamp
+    @DateTimeFormat(pattern="dd/MM/yyyy")
     @Column(name = "updated_at")
     private LocalDateTime updated_at;
 
