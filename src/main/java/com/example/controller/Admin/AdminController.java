@@ -42,7 +42,7 @@ public class AdminController {
     public String listUsers(@RequestParam(defaultValue = "1") int page,
                             @RequestParam(defaultValue = "5") int size,
                             Model model) {
-        List<User> users = userService.getAllEmployees(page, size);
+        List<User> users = userService.getAllEmployees();
 
         List<UserProfileDto> dtoUserList = new ArrayList<>();
         for (User user : users) {
