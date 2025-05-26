@@ -41,35 +41,35 @@
       </tbody>
     </table>
     <!-- Pagination -->
-    <nav>
-      <ul class="pagination justify-content-center">
-        <li class="page-item ${page == 1 ? 'disabled' : ''}">
-          <a class="page-link"
-             href="<c:url value='/admin/user'>
-                     <c:param name='page' value='${page-1}'/>
-                     <c:param name='size' value='${size}'/>
-                   </c:url>">«</a>
-        </li>
+<%--    <nav>--%>
+<%--      <ul class="pagination justify-content-center">--%>
+<%--        <li class="page-item ${page == 1 ? 'disabled' : ''}">--%>
+<%--          <a class="page-link"--%>
+<%--             href="<c:url value='/admin/user'>--%>
+<%--                     <c:param name='page' value='${page-1}'/>--%>
+<%--                     <c:param name='size' value='${size}'/>--%>
+<%--                   </c:url>">«</a>--%>
+<%--        </li>--%>
 
-        <c:forEach begin="1" end="${pages}" var="i">
-          <li class="page-item ${i == page ? 'active' : ''}">
-            <a class="page-link"
-               href="<c:url value='/admin/user'>
-                       <c:param name='page' value='${i}'/>
-                       <c:param name='size' value='${size}'/>
-                     </c:url>">${i}</a>
-          </li>
-        </c:forEach>
+<%--        <c:forEach begin="1" end="${pages}" var="i">--%>
+<%--          <li class="page-item ${i == page ? 'active' : ''}">--%>
+<%--            <a class="page-link"--%>
+<%--               href="<c:url value='/admin/user'>--%>
+<%--                       <c:param name='page' value='${i}'/>--%>
+<%--                       <c:param name='size' value='${size}'/>--%>
+<%--                     </c:url>">${i}</a>--%>
+<%--          </li>--%>
+<%--        </c:forEach>--%>
 
-        <li class="page-item ${page == pages ? 'disabled' : ''}">
-          <a class="page-link"
-             href="<c:url value='/admin/user'>
-                     <c:param name='page' value='${page+1}'/>
-                     <c:param name='size' value='${size}'/>
-                   </c:url>">»</a>
-        </li>
-      </ul>
-    </nav>
+<%--        <li class="page-item ${page == pages ? 'disabled' : ''}">--%>
+<%--          <a class="page-link"--%>
+<%--             href="<c:url value='/admin/user'>--%>
+<%--                     <c:param name='page' value='${page+1}'/>--%>
+<%--                     <c:param name='size' value='${size}'/>--%>
+<%--                   </c:url>">»</a>--%>
+<%--        </li>--%>
+<%--      </ul>--%>
+<%--    </nav>--%>
 
     <a href="<c:url value='/admin/create'/>" class="btn btn-primary">
       <i class="bi bi-plus-circle me-1"></i>Thêm Nhan Vien

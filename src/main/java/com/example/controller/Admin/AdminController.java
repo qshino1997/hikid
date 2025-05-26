@@ -39,8 +39,7 @@ public class AdminController {
     private ModelMapper modelMapper;
 
     @GetMapping(value = {"/user","/"})
-    public String listUsers(@RequestParam(defaultValue = "1") int page,
-                            @RequestParam(defaultValue = "5") int size,
+    public String listUsers(
                             Model model) {
         List<User> users = userService.getAllEmployees();
 
