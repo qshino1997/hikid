@@ -68,10 +68,10 @@ public class OrderServiceImpl implements OrderService {
                 .setInvoiceNumber(order.getOrder_id().toString());
 
         RedirectUrls urls = new RedirectUrls()
-                .setCancelUrl("https://059d-2405-4802-a5fe-1f50-959d-f90b-890-1b5e.ngrok-free.app/cart")
-                .setReturnUrl("https://059d-2405-4802-a5fe-1f50-959d-f90b-890-1b5e.ngrok-free.app/order/success");
-//                .setCancelUrl("https://hikid.onrender.com/cart")
-//                .setReturnUrl("https://hikid.onrender.com/order/success");
+//                .setCancelUrl("https://059d-2405-4802-a5fe-1f50-959d-f90b-890-1b5e.ngrok-free.app/cart")
+//                .setReturnUrl("https://059d-2405-4802-a5fe-1f50-959d-f90b-890-1b5e.ngrok-free.app/order/success");
+                .setCancelUrl("https://hikid.onrender.com/cart")
+                .setReturnUrl("https://hikid.onrender.com/order/success");
         Payment payment = new Payment()
                 .setIntent("sale")
                 .setPayer(payer)
