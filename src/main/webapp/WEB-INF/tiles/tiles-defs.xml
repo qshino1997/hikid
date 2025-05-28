@@ -18,5 +18,14 @@
     <definition name="admin.order" extends="base.layout">
         <put-attribute name="body" value="/WEB-INF/views/admin/order.jsp"/>
     </definition>
+    <definition name="admin.product" extends="base.layout">
+        <put-attribute name="body" value="/WEB-INF/views/admin/product.jsp"/>
+    </definition>
+    <definition name="admin.category" extends="base.layout">
+        <put-attribute name="body" value="/WEB-INF/views/admin/category.jsp"/>
+    </definition>
+    <definition name="admin.manufacturer" extends="base.layout">
+        <put-attribute name="body" value="/WEB-INF/views/admin/manufacturer.jsp"/>
+    </definition>
     <!-- ... -->
 </tiles-definitions>

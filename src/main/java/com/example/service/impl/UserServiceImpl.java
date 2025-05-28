@@ -43,17 +43,18 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<User> getAllEmployees() {
-        return userDAO.getAllEmployees();
+    public List<User> getAllUsers(int page, int size, int role, String keyword) {
+        return userDAO.getAllUsers(page, size, role, keyword);
     }
 
-    @Override
-    public List<User> getAllCustomers() {
-        return userDAO.getAllCustomers();
-    }
 
     @Override
     public void deleteById(int id) {
         userDAO.deleteById(id);
+    }
+
+    @Override
+    public long countEmployees(int role, String keyword) {
+        return userDAO.countEmployees(role, keyword);
     }
 }

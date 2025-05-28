@@ -16,7 +16,8 @@
     .sidebar .nav-link { color: #adb5bd; }
     .sidebar .nav-link.active, .sidebar .nav-link:hover { color: #fff; background-color: #495057; }
     .content-area { padding: 2rem; }
-    .fixed-table-height { min-height: 300px; }
+    .fixed-table-height { max-height: 400px; overflow-y: auto; }
+    .fixed-table-height-product{ max-height: 800px; overflow-y: auto; }
     .table-fixed { table-layout: fixed; width: 100%; }
     .table-fixed th, .table-fixed td { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   </style>

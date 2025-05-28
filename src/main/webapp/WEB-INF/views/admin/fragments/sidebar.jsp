@@ -24,6 +24,16 @@
                     <i class="bi bi-box-seam me-2"></i>Sản phẩm
                 </a>
             </li>
+            <li class="nav-item">
+                <a class="nav-link ${page == 'category' ? 'active' : ''}" href="<c:url value='/admin/category'/>">
+                    <i class="bi bi-tags-fill me-2"></i>Danh mục
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link ${page == 'manufacturer' ? 'active' : ''}" href="<c:url value='/admin/manufacturer'/>">
+                    <i class="bi bi-building me-2"></i>Nhà sản xuất
+                </a>
+            </li>
         </ul>
     </div>
 </div>

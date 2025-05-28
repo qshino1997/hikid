@@ -6,71 +6,22 @@
     <i class="bi bi-people"></i> Quản lý Người dùng
   </div>
   <div class="card-body">
-    <table class="table table-hover">
-      <thead>
-      <tr>
-        <th>Họ tên</th>
-        <th>Email</th>
-        <th>Số điện thoại</th>
-        <th>Địa chỉ</th>
-        <th>Ngày sinh</th>
-        <th>Thao tác</th>
-      </tr>
-      </thead>
-      <tbody>
-      <jsp:useBean id="users" scope="request" type="java.util.List"/>
-      <c:forEach var="u" items="${users}">
-        <tr>
-          <td>${u.username}</td>
-          <td>${u.email}</td>
-          <td>${u.phone}</td>
-          <td>${u.address}</td>
-          <td>${u.date_of_birth}</td>
-          <td>
-            <!-- Nút Sửa -->
-            <a href="<c:url value='/admin/${u.user_id}/profile'/>">Chỉnh sửa</a>
-            <!-- Nút Xóa -->
-            <a class="btn btn-sm btn-danger"
-               href="<c:url value='/admin/${u.user_id}/delete'/>"
-               onclick="return confirm('Bạn có chắc chắn muốn xoá người này?');">
-              Xoá
-            </a>
-          </td>
-        </tr>
-      </c:forEach>
-      </tbody>
-    </table>
-    <!-- Pagination -->
-<%--    <nav>--%>
-<%--      <ul class="pagination justify-content-center">--%>
-<%--        <li class="page-item ${page == 1 ? 'disabled' : ''}">--%>
-<%--          <a class="page-link"--%>
-<%--             href="<c:url value='/admin/user'>--%>
-<%--                     <c:param name='page' value='${page-1}'/>--%>
-<%--                     <c:param name='size' value='${size}'/>--%>
-<%--                   </c:url>">«</a>--%>
-<%--        </li>--%>
-
-<%--        <c:forEach begin="1" end="${pages}" var="i">--%>
-<%--          <li class="page-item ${i == page ? 'active' : ''}">--%>
-<%--            <a class="page-link"--%>
-<%--               href="<c:url value='/admin/user'>--%>
-<%--                       <c:param name='page' value='${i}'/>--%>
-<%--                       <c:param name='size' value='${size}'/>--%>
-<%--                     </c:url>">${i}</a>--%>
-<%--          </li>--%>
-<%--        </c:forEach>--%>
-
-<%--        <li class="page-item ${page == pages ? 'disabled' : ''}">--%>
-<%--          <a class="page-link"--%>
-<%--             href="<c:url value='/admin/user'>--%>
-<%--                     <c:param name='page' value='${page+1}'/>--%>
-<%--                     <c:param name='size' value='${size}'/>--%>
-<%--                   </c:url>">»</a>--%>
-<%--        </li>--%>
-<%--      </ul>--%>
-<%--    </nav>--%>
-
+    <form id="filterForm" class="row g-3 mb-4">
+      <div class="col-md-4">
+        <label>Tìm theo ten</label>
+        <input type="text" name="keyword" value="${keywordDefault}" placeholder="Nhập tên" class="form-control"/>
+      </div>
+      <div class="col-md-4 d-flex align-items-end">
+        <button type="submit" class="btn btn-primary">Tim kiem</button>
+      </div>
+    </form>
+    <c:if test="${not empty success}">
+      <div class="alert alert-success">${success}</div>
+    </c:if>
+    <c:if test="${not empty failed}">
+      <div class="alert alert-danger">${failed}</div>
+    </c:if>
+    <div id="usersTable"></div>
     <a href="<c:url value='/admin/create'/>" class="btn btn-primary">
       <i class="bi bi-plus-circle me-1"></i>Thêm Nhan Vien
     </a>
@@ -78,34 +29,33 @@
 </div>
 
 <script src="${pageContext.request.contextPath}/resources/js/jquery-3.6.0.min.js"></script>
+
 <script>
   $(function(){
-    // Edit button
-    $(document).on('click', '.btn-edit-user', function(){
-      const btn = $(this);
-      $('#editUserId').val(btn.data('user-id'));
-      $('#editUsername').val(btn.data('username'));
-      $('#editEmail').val(btn.data('email'));
-      $('#editPhone').val(btn.data('phone'));
-      $('#editAddress').val(btn.data('address'));
-      $('#editDob').val(btn.data('dob'));
-      $('#editUserModal').modal('show');
-    });
-
-    // Delete button
-    $(document).on('click', '.btn-delete-user', function(){
-      const btn = $(this);
-      $('#deleteUserId').val(btn.data('user-id'));
-      $('#deleteUserName').text(btn.data('username'));
-      $('#deleteUserModal').modal('show');
-    });
-  });
-
-  $(document).ready(function(){
-    const urlParams = new URLSearchParams(window.location.search);
-    const openModal = urlParams.get('openModal');
-    if (openModal === 'editUserModal') {
-      $('#editUserModal').modal('show');
+    const base = '${pageContext.request.contextPath}';
+    // 1) Load fragment lần đầu hoặc khi chuyển trang
+    function loadUsers(page = 1) {
+      const keyword = $('input[name="keyword"]').val()
+      $.get(base + '/admin/ajaxUser', { page, size: 5, role : 2, keyword: keyword })
+              .done(html => $('#usersTable').html(html))
+              .fail((_, s) => alert('Lỗi tải danh sách: ' + s));
     }
+
+    // Bind event submit
+    $('#filterForm').on('submit', function(e){
+      e.preventDefault();
+      loadUsers(1);
+    });
+
+    // 2) Event delegation cho pagination
+    $(document).on('click', '#usersTable .pagination .page-link', function(e){
+      e.preventDefault();
+      const p = $(this).data('page');
+      if (p) loadUsers(p);
+    });
+
+    // 3) Load lần đầu
+    loadUsers();
   });
+
 </script>

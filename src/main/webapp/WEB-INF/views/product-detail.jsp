@@ -1,5 +1,8 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<fmt:setLocale value="vi_VN" />
+
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -23,25 +26,31 @@
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb bg-white rounded-1 p-2">
             <li class="breadcrumb-item"><a href="${pageContext.request.contextPath}/">Trang chủ</a></li>
-            <li class="breadcrumb-item"><a href="${pageContext.request.contextPath}/product/${category.id}/list">${category.name}</a></li>
-            <li class="breadcrumb-item active" aria-current="page">${product.name}</li>
+            <li class="breadcrumb-item active" aria-current="page">${product.category.name}</li>
         </ol>
     </nav>
-
+    <c:if test="${not empty success}">
+    <div class="alert alert-success" id="showAlert">${success}</div>
+    </c:if>
+    <c:if test="${not empty failed}">
+    <div class="alert alert-danger" id="showAlert">${failed}</div>
+    </c:if>
     <!-- Product Detail -->
     <div class="row p-4" style="background-color: white">
         <!-- Image -->
-<%--        <div class="col-md-6 text-center">--%>
-<%--            <c:if test="${not empty product.imageUrl}">--%>
-<%--                <img src="${product.imageUrl}" class="img-fluid rounded" alt="${product.name}"/>--%>
-<%--            </c:if>--%>
-<%--        </div>--%>
+        <div class="col-md-6 text-center">
+            <c:set var="firstImg" value="${product.images[0]}"/>
+            <img src="<c:url value='/resources/images/${firstImg.url}'/>"
+                 alt="${product.name}"
+                 onerror="this.onerror=null; this.src='<c:url value='/resources/images/default.png'/>'"
+                 style="width:360px; height:360px; object-fit:contain;" />
+        </div>
         <!-- Info -->
         <div class="col-md-6">
-            <p class="text-muted">Thương hiệu: <strong>${product.manufacturerName}</strong></p>
+            <p class="text-muted">Thương hiệu: <strong>${product.manufacturer.name}</strong></p>
             <h2 class="fw-bold">${product.name}</h2>
-            <p class="text-muted">Xuất xứ: <strong>${product.madeInFull}</strong></p>
-            <h4 class="text-danger mb-3">${product.price}₫</h4>
+            <p class="text-muted">Xuất xứ: <strong>${product.made_in}</strong></p>
+            <h4 class="text-danger mb-3"> <fmt:formatNumber value="${product.price}" pattern="#,##0'đ'" /></h4>
 
             <!-- Stock -->
             <p>Kho còn: <strong>${product.stock}</strong> chiếc</p>
@@ -49,6 +58,7 @@
             <!-- Add to Cart -->
             <form action="${pageContext.request.contextPath}/cart/add" method="post" class="mt-4">
                 <input type="hidden" name="productId" value="${product.product_id}"/>
+                <input type="hidden" name="mode" value="1"/>
                 <div class="input-group mb-3" style="max-width: 140px;">
                     <span class="input-group-text">SL</span>
                     <input type="number" name="quantity" class="form-control" value="1" min="1" max="${product.stock}"/>
@@ -71,11 +81,11 @@
             </tr>
             <tr>
                 <th>Thương hiệu</th>
-                <td>${product.manufacturerName}</td>
+                <td>${product.manufacturer.name}</td>
             </tr>
             <tr>
                 <th>Xuất xứ thương hiệu</th>
-                <td>${product.madeInFull}</td>
+                <td>${product.made_in}</td>
             </tr>
             <tr>
                 <th>Trọng lượng sản phẩm</th>
@@ -105,22 +115,6 @@
                 <th>Bảo quản</th>
                 <td>${product.storage_instructions}</td>
             </tr>
-<%--            <tr>--%>
-<%--                <th>Nhà sản xuất</th>--%>
-<%--                <td>--%>
-<%--                    ${product.manufacturerAddress}--%>
-<%--                </td>--%>
-<%--            </tr>--%>
-<%--            <tr>--%>
-<%--                <th>Thành phần</th>--%>
-<%--                <td>${product.ingredients}</td>--%>
-<%--            </tr>--%>
-<%--            <tr>--%>
-<%--                <th>Công ty nhập khẩu</th>--%>
-<%--                <td>${product.importerName}--%>
-<%--                    <br/>${product.importerAddress}--%>
-<%--                </td>--%>
-<%--            </tr>--%>
             </tbody>
         </table>
 
@@ -130,5 +124,7 @@
 <jsp:include page="/WEB-INF/views/fragment/footer.jsp"/>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="${pageContext.request.contextPath}/resources/js/custom.js"></script>
+
 </body>
 </html>

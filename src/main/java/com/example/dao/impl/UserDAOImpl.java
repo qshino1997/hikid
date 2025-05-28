@@ -4,7 +4,9 @@ import com.example.dao.BaseDAO;
 import com.example.dao.UserDAO;
 import com.example.entity.User;
 import org.hibernate.Session;
+import org.hibernate.query.Query;
 import org.springframework.stereotype.Repository;
+import org.springframework.util.StringUtils;
 
 import java.util.List;
 
@@ -35,21 +37,44 @@ public class UserDAOImpl extends BaseDAO implements UserDAO {
     }
 
     @Override
-    public List<User> getAllEmployees() {
+    public List<User> getAllUsers(int page, int size, int role, String keyword) {
         String hql = "SELECT u FROM User u " +
-                "LEFT JOIN FETCH u.profile " +
+                "LEFT JOIN FETCH u.profile p " +
                 "LEFT JOIN FETCH u.roles r " +
-                "WHERE r.id = 2";
-        return currentSession().createQuery(hql,User.class).getResultList();
+                "WHERE r.id = :role";
+
+        if (keyword != null && !keyword.trim().isEmpty()) {
+            hql += " AND u.username LIKE :kw";
+        }
+
+        Query<User> q = currentSession().createQuery(hql, User.class);
+        q.setParameter("role", role);
+        if (keyword != null && !keyword.isEmpty()) {
+            q.setParameter("kw", "%" + keyword.trim() + "%");
+        }
+
+        q.setFirstResult((page - 1) * size);
+        q.setMaxResults(size);
+
+        return q.getResultList();
     }
 
     @Override
-    public List<User> getAllCustomers() {
-        String hql = "SELECT u FROM User u " +
-                "LEFT JOIN FETCH u.profile " +
-                "LEFT JOIN FETCH u.roles r " +
-                "WHERE r.id = 3";
-        return currentSession().createQuery(hql,User.class).getResultList();
+    public long countEmployees(int role, String keyword) {
+        String hql = "SELECT count(u) FROM User u JOIN u.roles r WHERE r.id = :role";
+
+        if (keyword != null && !keyword.trim().isEmpty()) {
+            hql += " AND u.username LIKE :kw";
+        }
+
+        Query<Long> q = currentSession().createQuery(hql, Long.class);
+        q.setParameter("role", role);
+
+        if (keyword != null && !keyword.isEmpty()) {
+            q.setParameter("kw", "%" + keyword.trim() + "%");
+        }
+
+        return q.uniqueResult();
     }
 
     @Override
@@ -63,6 +88,7 @@ public class UserDAOImpl extends BaseDAO implements UserDAO {
         User user = currentSession().get(User.class, id);
         // 2. Nếu tồn tại thì xoá
         if (user != null) {
+            user.getRoles().clear();
             currentSession().delete(user);
         }
     }

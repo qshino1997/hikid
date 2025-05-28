@@ -35,10 +35,6 @@ public class PaymentOrderController {
         }
     }
 
-    /**
-     * Callback từ PayPal khi người dùng thanh toán thành công
-     * Chỉ dùng để hiển thị trang cảm ơn, không cập nhật trạng thái đơn hàng ở đây
-     */
     @GetMapping("/success")
     public String successPage(@RequestParam("paymentId") String paymentId,
                               @RequestParam("PayerID") String payerId,
@@ -57,9 +53,6 @@ public class PaymentOrderController {
         return "payment/success";
     }
 
-    /**
-     * Callback từ PayPal khi thanh toán bị hủy
-     */
     @GetMapping("/cancel")
     public String cancelPay(Model model) {
         model.addAttribute("message", "Thanh toán đã bị hủy.");

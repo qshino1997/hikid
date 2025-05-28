@@ -5,56 +5,65 @@
 <link href="<c:url value='/resources/css/custom.css'/>" rel="stylesheet" type="text/css"/>
 <link href="<c:url value='/resources/css/styles.css'/>" rel="stylesheet" type="text/css"/>
 
-<nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom sticky-top py-3 px-2">
-    <div class="container-fluid">
-        <a class="navbar-brand" href="<c:url value="/"></c:url> ">Hi-Kids</a>
-        <!-- left menu -->
-        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-            <li class="nav-item"><a class="nav-link" href="#">Giới thiệu</a></li>
-            <li class="nav-item"><a class="nav-link" href="#">Khuyến mãi</a></li>
-        </ul>
-        <!-- search -->
-        <form class="d-flex mx-lg-4 flex-grow-1">
-            <input class="form-control me-2" type="search" placeholder="Tìm sản phẩm, thương hiệu..." />
-            <button class="btn btn-outline-primary" type="submit"><i class="bi-search"></i></button>
-        </form>
-        <!-- cart & account -->
-        <ul class="navbar-nav mb-2 mb-lg-0">
-            <li class="nav-item me-3">
-                <a class="nav-link position-relative" href="/cart"><i class="bi-cart3 fs-5"></i>
-                    <span id="cart-count"
-                          class="badge bg-danger position-absolute top-0 start-100 translate-middle">
-                        ${cart.totalQuantity}
-                    </span>
-                </a>
-            </li>
-            <!-- Nếu chưa login -->
-            <sec:authorize access="isAnonymous()">
-                <li class="nav-item">
-                    <a class="nav-link" href="#"
-                       data-bs-toggle="modal"
-                       data-bs-target="#loginModal">
-                        <i class="bi-person fs-5"></i>
+<nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm sticky-top">
+    <div class="container">
+        <a class="navbar-brand fw-bold text-primary" href="<c:url value='/'/>">Hi-Kids</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="mainNav">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                <li class="nav-item"><a class="nav-link" href="#">Giới thiệu</a></li>
+            </ul>
+
+            <form id="searchForm"
+                  class="d-flex flex-grow-1 mx-3"
+                  action="${pageContext.request.contextPath}/product/searchList"
+                  method="get">
+                <input class="form-control me-2"
+                       type="search"
+                       name="keyword"
+                       id="searchKeyword"
+                       value="${keyword}"
+                       placeholder="Tìm sản phẩm, thương hiệu..."
+                       aria-label="Search">
+                <button class="btn btn-outline-primary" type="submit"><i class="bi bi-search"></i></button>
+            </form>
+
+            <ul class="navbar-nav mb-2 mb-lg-0 align-items-center">
+                <li class="nav-item me-3 position-relative">
+                    <a class="btn btn-outline-primary position-relative" href="/cart">
+                        <i class="bi bi-cart3 fs-5"></i>
+                        <span id="cart-count" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                            ${cart.totalQuantity}
+                        </span>
                     </a>
                 </li>
-            </sec:authorize>
 
-            <!-- Nếu đã login -->
-            <sec:authorize access="isAuthenticated()">
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" id="userMenu" role="button"
-                       data-bs-toggle="dropdown" aria-expanded="false">
-                        Xin chào <sec:authentication property="principal.username"/>
-                    </a>
-                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userMenu">
-                        <li><a class="dropdown-item" href="<c:url value='/user/home'/>">Trang cá nhân</a></li>
-                        <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item" href="<c:url value='/logout'/>">Đăng xuất</a></li>
-                    </ul>
-                </li>
-            </sec:authorize>
-        </ul>
+                <sec:authorize access="isAnonymous()">
+                    <li class="nav-item">
+                        <button class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#loginModal">
+                            <i class="bi bi-person"></i> Đăng nhập
+                        </button>
+                    </li>
+                </sec:authorize>
 
+                <sec:authorize access="isAuthenticated()">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="userMenu" role="button"
+                           data-bs-toggle="dropdown" aria-expanded="false">
+                            Xin chào <sec:authentication property="principal.username"/>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userMenu">
+                            <li><a class="dropdown-item" href="<c:url value='/user/profile'/>">Trang cá nhân</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="<c:url value='/logout'/>">Đăng xuất</a></li>
+                        </ul>
+                    </li>
+                </sec:authorize>
+            </ul>
+        </div>
     </div>
 </nav>
 <!-- spacer for fixed header -->

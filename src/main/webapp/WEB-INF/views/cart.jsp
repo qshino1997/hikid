@@ -70,6 +70,7 @@
         </c:choose>
     </div>
 </div>
-<script src="/resources/js/cart.js"></script>
+<script src="${pageContext.request.contextPath}/resources/js/cart.js"></script>
+<script src="${pageContext.request.contextPath}/resources/js/custom.js"></script>
 </body>
 </html>

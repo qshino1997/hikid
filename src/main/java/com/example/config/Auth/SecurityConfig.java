@@ -60,7 +60,7 @@ public class SecurityConfig {
                     .usernameParameter("email")          // đọc trường email
                     .passwordParameter("password")       // đọc trường password
                     .successHandler(new LoginSuccessHandler())   // <–– dùng handler custom
-//                    .failureUrl("/login/admin?error=true")
+                    .failureUrl("/admin/login?error")
                     .permitAll()
                     .and()
                     .logout()
@@ -114,15 +114,15 @@ public class SecurityConfig {
                     .usernameParameter("email")          // đọc trường email
                     .passwordParameter("password")       // đọc trường password
                     .successHandler(new LoginSuccessHandler())   // <–– dùng handler custom
-//                    .failureUrl("/?error=true")
-                    .permitAll();
-//                    .and()
-//                    .logout()
-//                    .logoutUrl("/logout")
-//                    .logoutSuccessUrl("/")
-//                    .permitAll()
-//                    .and()
-//                    .csrf().disable();
+                    .failureUrl("/?error")
+                    .permitAll()
+                    .and()
+                    .logout()
+                    .logoutUrl("/logout")
+                    .logoutSuccessUrl("/?logout")
+                    .permitAll()
+                    .and()
+                    .csrf().disable();
         }
 
         @Override

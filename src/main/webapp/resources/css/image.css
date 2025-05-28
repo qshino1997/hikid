@@ -1,0 +1,27 @@
+/* Xóa width/margin cũ, cho card full cell */
+.product-card {
+    background: #fff;
+    border: none;
+    border-radius: 0.5rem;
+    overflow: hidden;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    transition: transform .2s, box-shadow .2s;
+    /* MỚI: full width, không margin */
+    width: 100%;
+    margin: 0;
+}
+
+/* Grid 6 cột đều nhau, gap 1rem, canh giữa nội dung */
+.product-grid {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 1rem;
+    justify-items: center;
+}
+
+.product-image {
+    width: 100%;
+    height: 180px;            /* hoặc cao bạn đã chọn */
+    object-fit: cover;
+    object-position: top;     /* hiển thị từ phần đầu ảnh */
+}

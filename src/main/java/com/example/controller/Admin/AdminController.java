@@ -1,29 +1,25 @@
 package com.example.controller.Admin;
 
 import com.example.dto.UserProfileDto;
+import com.example.entity.Role;
 import com.example.entity.User;
 import com.example.entity.UserProfile;
-import com.example.service.UserProfileService;
+import com.example.service.RoleService;
 import com.example.service.UserService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.util.StringUtils;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.validation.Valid;
 import java.security.Principal;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/admin")
@@ -38,46 +34,50 @@ public class AdminController {
     @Autowired
     private ModelMapper modelMapper;
 
+    @Autowired
+    private RoleService roleService;
+
     @GetMapping(value = {"/user","/"})
-    public String listUsers(
-                            Model model) {
-        List<User> users = userService.getAllEmployees();
-
-        List<UserProfileDto> dtoUserList = new ArrayList<>();
-        for (User user : users) {
-            UserProfileDto dto = modelMapper.map(user, UserProfileDto.class);
-            dto.setUser_id(user.getId());
-            if (user.getProfile() != null) {
-                dto.setDate_of_birth(user.getProfile().getDate_of_birth());
-                dto.setPhone(user.getProfile().getPhone());
-                dto.setAddress(user.getProfile().getAddress());
-            }
-
-            dtoUserList.add(dto);
-        }
-        model.addAttribute("page","user");
-        model.addAttribute("users", dtoUserList);
+    public String listUsers() {
         return "admin.user";
     }
 
-    @GetMapping("/customer")
-    public String listCustomers(Model model) {
-        List<User> users2 = userService.getAllCustomers();
-        List<UserProfileDto> dtoUserList2 = new ArrayList<>();
-        for (User user : users2) {
-            UserProfileDto dto = modelMapper.map(user, UserProfileDto.class);
-            dto.setUser_id(user.getId());
+    @GetMapping("/ajaxUser")
+    public String loadUsersAjax(
+            @RequestParam(defaultValue="1") int page,
+            @RequestParam(defaultValue="5") int size,
+            @RequestParam int role,
+            @RequestParam String keyword,
+            Model model) {
 
-            if (user.getProfile() != null) {
-                dto.setDate_of_birth(user.getProfile().getDate_of_birth());
-                dto.setPhone(user.getProfile().getPhone());
-                dto.setAddress(user.getProfile().getAddress());
-            }
+        List<UserProfileDto> dtos = userService.getAllUsers(page, size, role, keyword).stream()
+                .map(u -> {
+                    // Map entity User sang DTO
+                    UserProfileDto dto = modelMapper.map(u, UserProfileDto.class);
+                    dto.setUser_id(u.getId());
+                    if (u.getProfile() != null) {
+                        dto.setDate_of_birth(u.getProfile().getDate_of_birth());
+                        dto.setPhone(u.getProfile().getPhone());
+                        dto.setAddress(u.getProfile().getAddress());
+                    }
+                    return dto;
+                })
+                .collect(Collectors.toList());
+        long total = userService.countEmployees(role, keyword);
+        model.addAttribute("users", dtos);
+        model.addAttribute("page", page);
+        model.addAttribute("pages", (int)Math.ceil((double)total/size));
+        model.addAttribute("keywordDefault", keyword);
 
-            dtoUserList2.add(dto);
+        if(role == 3){
+            return "admin/customer-table";
         }
-        model.addAttribute("page","customer");
-        model.addAttribute("users", dtoUserList2);
+        return "admin/user-table";
+    }
+
+
+    @GetMapping("/customer")
+    public String listCustomers() {
         return "admin.customer";
     }
 
@@ -111,8 +111,7 @@ public class AdminController {
     @PostMapping("/profile")
     public String updateProfile(@Valid @ModelAttribute("user") UserProfileDto dto,
                                 BindingResult br,
-                                Model model,
-                                Principal principal) {
+                                Model model) {
 
         if (br.hasErrors()) {
             model.addAttribute("user", dto);
@@ -128,16 +127,19 @@ public class AdminController {
                 User newUser = new User();
                 newUser.setUsername(dto.getUsername());
                 newUser.setEmail(dto.getEmail());
-                // bạn có thể set password mặc định hoặc để admin nhập
                 newUser.setPassword(passwordEncoder.encode("123456"));
+
+                // Gán role mặc định EMPLOYEE (id = 2)
+                Role employeeRole = roleService.findById(2);
+                newUser.setRoles(Collections.singletonList(employeeRole));
+
                 UserProfile profile = new UserProfile();
                 profile.setUser(newUser);           // set liên kết 2 chiều
                 profile.setDate_of_birth(dto.getDate_of_birth());
                 profile.setPhone(dto.getPhone());
                 profile.setAddress(dto.getAddress());
                 newUser.setProfile(profile);
-                // Nếu cần set role:
-                // newUser.setRoles(Collections.singleton(roleService.findByName("ROLE_EMPLOYEE")));
+
                 userService.saveOrUpdate(newUser);
 
                 model.addAttribute("success", "Tạo nhân viên mới thành công!");

@@ -1,7 +1,6 @@
 package com.example.controller.Admin;
 
 import com.example.dto.OrderStatsDto;
-import com.example.dto.PageResult;
 import com.example.entity.Order;
 import com.example.entity.OrderItem;
 import com.example.entity.User;
@@ -35,11 +34,11 @@ public class AdminOrderController {
         LocalDate today = LocalDate.now();
         LocalDate firstOfMonth = today.withDayOfMonth(1);
 
-        // format theo yyyy-MM-dd để <input type="date"> hiểu
+        // format theo yyyy-MM-dd
         model.addAttribute("startDateDefault", firstOfMonth);
         model.addAttribute("endDateDefault", today);
 
-        return "admin.order";              // order.jsp chứa form + <div id="ordersTable">
+        return "admin.order";
     }
 
     @GetMapping("/ajax")
@@ -78,7 +77,6 @@ public class AdminOrderController {
             @RequestParam(required=false) @DateTimeFormat(pattern="yyyy-MM-dd") LocalDate startDate,
             @RequestParam(required=false) @DateTimeFormat(pattern="yyyy-MM-dd") LocalDate endDate) {
 
-        // service trả về Map<LocalDate, Long>
         Map<LocalDate, Long> map = orderService.countOrdersByDate(startDate, endDate);
         DateTimeFormatter fmt = DateTimeFormatter.ofPattern("dd/MM/yyyy");
         return map.entrySet().stream()

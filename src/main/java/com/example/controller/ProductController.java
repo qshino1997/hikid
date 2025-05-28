@@ -2,8 +2,10 @@ package com.example.controller;
 
 import com.example.dto.ProductDto;
 import com.example.entity.Category;
+import com.example.entity.Product;
 import com.example.service.CategoryService;
 import com.example.service.ProductService;
+import com.google.api.gax.paging.Page;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -13,7 +15,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
-import java.util.Set;
 
 @Controller
 @RequiredArgsConstructor
@@ -21,21 +22,75 @@ import java.util.Set;
 public class ProductController {
     private final ProductService productService;
     private final CategoryService categoryService;
-    @GetMapping("/{id}/list")
-    public String getAllProduct(@PathVariable("id") int id,Model model){
-        List<ProductDto> productList = productService.getAllProductByCatoryId(id);
-        Category category = categoryService.findById(id);
-        model.addAttribute("subCategory", category);
-        model.addAttribute("products", productList);
+
+    @GetMapping("/{categoryId}/list")
+    public String getAllProduct(@PathVariable("categoryId") int categoryId,
+                                Model model){
+        Category category = categoryService.findById(categoryId);
+        model.addAttribute("category", category);
+        model.addAttribute("categoryId", category.getId());
         return "products";
     }
 
-    @GetMapping("/{id}")
-    public String getProduct(@PathVariable("id") int id, @RequestParam("subCategoryId") int subCategoryId, Model model){
-        ProductDto productDto = productService.getProductById(id);
-        Category category = categoryService.findById(subCategoryId);
+    @GetMapping("/searchList")
+    public String getAllProductBySearch(
+            @RequestParam(value="keyword", defaultValue="") String keyword,
+            Model model){
+
+        Category category = new Category();
+        category.setName(keyword.trim());
         model.addAttribute("category", category);
-        model.addAttribute("product", productDto);
+
+        model.addAttribute("keyword", keyword);
+
+        return "productsBySearch";
+    }
+
+    @GetMapping("/{categoryId}/loadAjax")
+    public String loadProductsAjax(
+            @PathVariable(value = "categoryId") int categoryId,
+            @RequestParam(value="page", defaultValue="1") int page,
+            @RequestParam(value="size", defaultValue="12") int size,
+            @RequestParam(defaultValue="") String keyword,
+            Model model) {
+
+        Category category = categoryService.findById(categoryId);
+        model.addAttribute("category", category);
+
+        List<Product> productList = productService.getAllProductByCatoryId(categoryId, page, size);
+
+        long total = productService.countByCategoryId(categoryId);
+
+        model.addAttribute("products", productList);
+        model.addAttribute("page", page);
+        model.addAttribute("pages", (int)Math.ceil((double)total/size));
+        model.addAttribute("keyword", keyword);
+
+        return "_productList";
+    }
+
+    @GetMapping("/searchLoadAjax")
+    public String searchLoadProductsAjax(
+            @RequestParam(value="page", defaultValue="1") int page,
+            @RequestParam(value="size", defaultValue="12") int size,
+            @RequestParam(defaultValue="") String keyword,
+            Model model) {
+
+        List<Product> productList = productService.findByCategory0AndKeyword(page, size, keyword);
+        long total = productService.countByCategory0AndKeyword(keyword);
+
+        model.addAttribute("products", productList);
+        model.addAttribute("page", page);
+        model.addAttribute("pages", (int)Math.ceil((double)total/size));
+        model.addAttribute("keyword", keyword);
+
+        return "_productList";
+    }
+
+    @GetMapping("/{id}")
+    public String getProduct(@PathVariable("id") int id, Model model){
+        Product product = productService.findById(id);
+        model.addAttribute("product", product);
         return "product-detail";
     }
 }

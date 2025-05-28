@@ -5,14 +5,12 @@ import com.example.service.CartService;
 import com.example.service.ProductService;
 import com.example.service.impl.CartServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.servlet.http.HttpSession;
-import java.util.Collections;
-import java.util.Map;
 
 @Controller
 @RequestMapping("/cart")
@@ -34,29 +32,27 @@ public class CartController {
     @PostMapping("/add")
     public String addToCart(@RequestParam("productId") Integer productId,
                             @RequestParam("quantity") Integer quantity,
+                            @RequestParam("mode") Integer mode,
+                            @RequestParam(value = "categoryId", required = false) Integer categoryId,
+                            RedirectAttributes ra,
                             HttpSession session) {
         ProductDto p = productService.getProductById(productId);
         if (p != null) {
             CartService cart = getCart(session);
             cart.addItem(p, quantity);
+            if(mode == 1){
+                ra.addFlashAttribute("success", "Thêm giỏ hàng thành công");
+                return "redirect:/product/" + productId;
+            } else if (mode == 2){
+                ra.addFlashAttribute("success", "Thêm sản phẩm " + p.getName() +" vào giỏ hàng thành công");
+                return "redirect:/";
+            } else if (mode == 3){
+                ra.addFlashAttribute("success", "Thêm sản phẩm " + p.getName() +" vào giỏ hàng thành công");
+                return "redirect:/product/" + categoryId + "/list";
+            }
         }
-        // Chuyển về trang giỏ hàng (bạn map /gio-hang.html tới view "cart")
+        // Chuyển về trang giỏ hàng
         return "redirect:/cart";
-    }
-
-    @PostMapping(path = "/addAjax", produces = MediaType.APPLICATION_JSON_VALUE)
-    @ResponseBody
-    public Map<String,Object> addToCartAjax(@RequestParam("product_id") Integer productId,
-                                            @RequestParam("quantity")  Integer quantity,
-                                            HttpSession session) {
-        ProductDto p = productService.getProductById(productId);
-        if (p != null) {
-            CartService cart = getCart(session);
-            cart.addItem(p, quantity);
-        }
-        // Trả về tổng số lượng sau khi thêm
-        int totalQty = getCart(session).getTotalQuantity();
-        return Collections.singletonMap("totalQuantity", totalQty);
     }
 
     // Hiển thị giỏ hàng
@@ -64,7 +60,7 @@ public class CartController {
     public String viewCart(HttpSession session, Model model) {
         CartService cart = getCart(session);
         model.addAttribute("cart", cart);
-        return "cart";  // tương ứng /WEB-INF/views/cart.jsp
+        return "cart";
     }
 
     // Cập nhật số lượng

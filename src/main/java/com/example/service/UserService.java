@@ -11,7 +11,8 @@ public interface UserService {
     User findByEmail(String email);
     void saveOrUpdate(User user);
     void updatePassword(String email, String encodedPassword);
-    List<User> getAllEmployees();
-    List<User> getAllCustomers();
+    List<User> getAllUsers(int page, int size, int role, String keyword);
     void deleteById(int id);
+    long countEmployees(int role, String keyword);
+
 }
