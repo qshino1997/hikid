@@ -63,7 +63,7 @@ public class ProductDAOImpl extends BaseDAO implements ProductDAO {
 
         String hql = "select p.price "
                 + "from Product p "
-                + "where p.manufacturer.name = :brand "
+                + "where p.name = :brand "
                 + "  and p.appropriate_age_start = :start "
                 + "  and p.appropriate_age_end = :end";
         return currentSession()
