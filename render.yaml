@@ -5,3 +5,6 @@ services:
     dockerfilePath: ./Dockerfile
     instanceType: free
     port: 8080
+    envVars:
+      - key: APP_BASE_URL
+        value: https://hikid.onrender.com
