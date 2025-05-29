@@ -6,13 +6,12 @@
 
 <div class="product-grid">
   <c:forEach var="prod" items="${products}">
-    <c:set var="firstImg" value="${prod.images[0]}"/>
     <c:url var="detailUrl" value="/product/${prod.product_id}"/>
     <div class="card product-card h-100">
       <!-- Link & Image -->
       <a href="${pageContext.request.contextPath}/product/${prod.product_id}"
          class="text-decoration-none text-dark">
-        <img src="<c:url value='/resources/images/${firstImg.url}'/>"
+        <img src="<c:url value='/resources/images/${prod.url}'/>"
              class="card-img-top product-image"
              onerror="this.onerror=null; this.src='<c:url value='/resources/images/default.png'/>'"
              alt="${prod.name}" />

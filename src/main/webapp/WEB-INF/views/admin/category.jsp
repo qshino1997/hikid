@@ -37,7 +37,7 @@
     const base = '${pageContext.request.contextPath}';
     function loadCategories(page = 1) {
       const kw = $('input[name="keyword"]').val().trim();
-      $.get(base + '/admin/ajaxCategory', { page, size: 10, keyword: kw })
+      $.get(base + '/admin/category/ajaxCategory', { page, size: 10, keyword: kw })
               .done(html => $('#categoriesTable').html(html))
               .fail((_, s) => alert('Lỗi tải danh sách: ' + s));
     }

@@ -18,14 +18,15 @@
     <tbody>
     <c:forEach var="p" items="${products}">
         <tr>
+            <td style="display: none;">${p.product_id}</td>
             <td>${p.name}</td>
             <td>${p.made_in}</td>
             <td>${p.product_weight}</td>
             <td>${p.price}</td>
             <td>${p.appropriate_age_start} - ${p.appropriate_age_end}</td>
             <td>${p.stock}</td>
-            <td>${p.category != null ? p.category.name : ''}</td>
-            <td>${p.manufacturer != null ? p.manufacturer.name : ''}</td>
+            <td>${p.category_name != null ? p.category_name : ''}</td>
+            <td>${p.manufacturer_name != null ? p.category_name : ''}</td>
             <td>
                 <a href="<c:url value='/admin/product/${p.product_id}/edit'/>"
                    class="btn btn-sm btn-primary">Sửa</a>

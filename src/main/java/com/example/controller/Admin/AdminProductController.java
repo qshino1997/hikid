@@ -1,6 +1,6 @@
 package com.example.controller.Admin;
 
-import com.example.dto.ProductDto_v2;
+import com.example.dto.ProductDto;
 import com.example.entity.Category;
 import com.example.entity.Manufacturer;
 import com.example.entity.Product;
@@ -51,7 +51,7 @@ public class AdminProductController {
     // 3. Hiển thị form tạo mới
     @GetMapping("/create")
     public String showCreateForm(Model model) {
-        model.addAttribute("product", new ProductDto_v2());
+        model.addAttribute("product", new ProductDto());
         model.addAttribute("mode", "create");
         // load danh mục và hãng
         model.addAttribute("categories", categoryService.getAll());
@@ -61,7 +61,7 @@ public class AdminProductController {
 
     @PostMapping("/save")
     public String saveProduct(
-            @Valid @ModelAttribute("product") ProductDto_v2 productDto,
+            @Valid @ModelAttribute("product") ProductDto productDto,
             BindingResult br,
             Model model,
             RedirectAttributes ra) {
@@ -78,7 +78,7 @@ public class AdminProductController {
 
         Product product = modelMapper.map(productDto, Product.class);
         Category category = categoryService.findById(productDto.getCategory_id());
-        Manufacturer manufacturer = manufacturerService.findById(productDto.getProduct_id());
+        Manufacturer manufacturer = manufacturerService.findById(productDto.getManufacturer_id());
 
         product.setCategory(category);
         product.setManufacturer(manufacturer);
@@ -106,17 +106,17 @@ public class AdminProductController {
             @PathVariable("id") Integer id,
             Model model,
             RedirectAttributes ra) {
-        Product product = productService.findById(id);
+        ProductDto product = productService.findById(id);
         if (product == null) {
             ra.addFlashAttribute("failed", "Không tìm thấy sản phẩm");
             return "redirect:/admin/product";
         }
 
-        ProductDto_v2 productDto_v2 = modelMapper.map(product, ProductDto_v2.class);
-        productDto_v2.setCategory_id(product.getCategory().getId());
-        productDto_v2.setManufacturer_id(product.getManufacturer().getId());
+        ProductDto productDto = modelMapper.map(product, ProductDto.class);
+        productDto.setCategory_id(product.getCategory_id());
+        productDto.setManufacturer_id(product.getManufacturer_id());
 
-        model.addAttribute("product", productDto_v2);
+        model.addAttribute("product", productDto);
         model.addAttribute("categories", categoryService.getAll());
         model.addAttribute("manufacturers", manufacturerService.getAll());
         model.addAttribute("mode", "edit");
@@ -126,7 +126,7 @@ public class AdminProductController {
 
     @PostMapping("/update")
     public String updateProduct(
-            @ModelAttribute("product") @Valid ProductDto_v2 dto,
+            @ModelAttribute("product") @Valid ProductDto dto,
             BindingResult br,
             RedirectAttributes ra,
             Model model) {
@@ -142,7 +142,7 @@ public class AdminProductController {
 
         if (checkDuplicateProduct(dto, model)) return "admin/product-details";
 
-        Product product = productService.findById(dto.getProduct_id());
+        Product product = productService.getProductById(dto.getProduct_id());
 
         if(product == null){
             model.addAttribute("failed", "Khong tim thay san pham");
@@ -165,7 +165,7 @@ public class AdminProductController {
         return "redirect:/admin/product";
     }
 
-    private boolean checkDuplicateProduct(@ModelAttribute("product") @Valid ProductDto_v2 dto, Model model) {
+    private boolean checkDuplicateProduct(@ModelAttribute("product") @Valid ProductDto dto, Model model) {
         if(productService.getByName(dto.getName()) != null){
             model.addAttribute("failed", "Sản phẩm này đã tồn tại");
             model.addAttribute("mode", "create");

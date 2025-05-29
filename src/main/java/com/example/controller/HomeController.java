@@ -1,5 +1,6 @@
 package com.example.controller;
 
+import com.example.dto.ProductDto;
 import com.example.entity.Category;
 import com.example.entity.Product;
 import com.example.service.CategoryService;
@@ -22,10 +23,10 @@ public class HomeController {
     @GetMapping("/")
     public String home(Model model){
         List<Category> categories = categoryService.getRootCategoriesWithSubs();
-        List<Product> milkList = productService.getMaxProducesBySix(3);
-        List<Product> vitaminList = productService.getMaxProducesBySix(4);
-        List<Product> toyList = productService.getMaxProducesBySix(1);
-        List<Product> clothesList = productService.getMaxProducesBySix(2);
+        List<ProductDto> milkList = productService.getMaxProducesBySix(3);
+        List<ProductDto> vitaminList = productService.getMaxProducesBySix(4);
+        List<ProductDto> toyList = productService.getMaxProducesBySix(1);
+        List<ProductDto> clothesList = productService.getMaxProducesBySix(2);
 
         model.addAttribute("milkList", milkList);
         model.addAttribute("vitaminList", vitaminList);

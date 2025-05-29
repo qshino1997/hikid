@@ -57,7 +57,7 @@ public class ProductController {
         Category category = categoryService.findById(categoryId);
         model.addAttribute("category", category);
 
-        List<Product> productList = productService.getAllProductByCatoryId(categoryId, page, size);
+        List<ProductDto> productList = productService.getAllProductByCatoryId(categoryId, page, size);
 
         long total = productService.countByCategoryId(categoryId);
 
@@ -76,7 +76,7 @@ public class ProductController {
             @RequestParam(defaultValue="") String keyword,
             Model model) {
 
-        List<Product> productList = productService.findByCategory0AndKeyword(page, size, keyword);
+        List<ProductDto> productList = productService.findByCategory0AndKeyword(page, size, keyword);
         long total = productService.countByCategory0AndKeyword(keyword);
 
         model.addAttribute("products", productList);
@@ -89,7 +89,7 @@ public class ProductController {
 
     @GetMapping("/{id}")
     public String getProduct(@PathVariable("id") int id, Model model){
-        Product product = productService.findById(id);
+        ProductDto product = productService.findById(id);
         model.addAttribute("product", product);
         return "product-detail";
     }

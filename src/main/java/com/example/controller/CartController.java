@@ -36,7 +36,7 @@ public class CartController {
                             @RequestParam(value = "categoryId", required = false) Integer categoryId,
                             RedirectAttributes ra,
                             HttpSession session) {
-        ProductDto p = productService.getProductById(productId);
+        ProductDto p = productService.findById(productId);
         if (p != null) {
             CartService cart = getCart(session);
             cart.addItem(p, quantity);

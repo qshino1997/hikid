@@ -17,6 +17,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.validation.Valid;
 import java.security.Principal;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -111,6 +112,7 @@ public class AdminController {
     @PostMapping("/profile")
     public String updateProfile(@Valid @ModelAttribute("user") UserProfileDto dto,
                                 BindingResult br,
+                                RedirectAttributes ra,
                                 Model model) {
 
         if (br.hasErrors()) {
@@ -121,7 +123,10 @@ public class AdminController {
 
         if (dto.getUser_id() == null) {
             if(userService.findByEmail((dto.getEmail())) != null){
+                model.addAttribute("user", dto);
                 model.addAttribute("failed", "Email da ton tai, vui long nhap email khac");
+                model.addAttribute("mode", "create");
+                return "admin/profile";
             } else {
                 // ==== TẠO MỚI ====
                 User newUser = new User();
@@ -130,8 +135,7 @@ public class AdminController {
                 newUser.setPassword(passwordEncoder.encode("123456"));
 
                 // Gán role mặc định EMPLOYEE (id = 2)
-                Role employeeRole = roleService.findById(2);
-                newUser.setRoles(Collections.singletonList(employeeRole));
+                newUser.getRoles().add(roleService.findById(2));
 
                 UserProfile profile = new UserProfile();
                 profile.setUser(newUser);           // set liên kết 2 chiều
@@ -142,10 +146,8 @@ public class AdminController {
 
                 userService.saveOrUpdate(newUser);
 
-                model.addAttribute("success", "Tạo nhân viên mới thành công!");
-                model.addAttribute("mode", "create");
-                // Nội dung DTO sau tạo mới: có thể reset form
-                model.addAttribute("user", new UserProfileDto());
+                ra.addFlashAttribute("success", "Tạo nhân viên mới thành công!");
+                return "redirect:/admin/";
             }
         } else {
             User user = userService.findById(dto.getUser_id());

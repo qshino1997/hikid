@@ -26,7 +26,7 @@
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb bg-white rounded-1 p-2">
             <li class="breadcrumb-item"><a href="${pageContext.request.contextPath}/">Trang chủ</a></li>
-            <li class="breadcrumb-item active" aria-current="page">${product.category.name}</li>
+            <li class="breadcrumb-item active" aria-current="page">${product.category_name}</li>
         </ol>
     </nav>
     <c:if test="${not empty success}">
@@ -39,15 +39,14 @@
     <div class="row p-4" style="background-color: white">
         <!-- Image -->
         <div class="col-md-6 text-center">
-            <c:set var="firstImg" value="${product.images[0]}"/>
-            <img src="<c:url value='/resources/images/${firstImg.url}'/>"
+            <img src="<c:url value='/resources/images/${product.url}'/>"
                  alt="${product.name}"
                  onerror="this.onerror=null; this.src='<c:url value='/resources/images/default.png'/>'"
                  style="width:360px; height:360px; object-fit:contain;" />
         </div>
         <!-- Info -->
         <div class="col-md-6">
-            <p class="text-muted">Thương hiệu: <strong>${product.manufacturer.name}</strong></p>
+            <p class="text-muted">Thương hiệu: <strong>${product.manufacturer_name}</strong></p>
             <h2 class="fw-bold">${product.name}</h2>
             <p class="text-muted">Xuất xứ: <strong>${product.made_in}</strong></p>
             <h4 class="text-danger mb-3"> <fmt:formatNumber value="${product.price}" pattern="#,##0'đ'" /></h4>
@@ -81,7 +80,7 @@
             </tr>
             <tr>
                 <th>Thương hiệu</th>
-                <td>${product.manufacturer.name}</td>
+                <td>${product.manufacturer_name}</td>
             </tr>
             <tr>
                 <th>Xuất xứ thương hiệu</th>

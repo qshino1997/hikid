@@ -6,18 +6,18 @@ import com.example.entity.Product;
 import java.util.List;
 
 public interface ProductService {
-    List<Product> getAllProductByCatoryId(int categoryId, int page, int size);
-    ProductDto getProductById(int id);
+    List<ProductDto> getAllProductByCatoryId(int categoryId, int page, int size);
+    Product getProductById(int id);
     Integer findPriceByBrandAndAgeRange(String brand, String ageRange);
-    List<Product> getAllProducts(int page, int size, String keyword);
+    List<ProductDto> getAllProducts(int page, int size, String keyword);
     long countProducts(String keyword);
-    List<Product> findByCategory0AndKeyword(int page, int size, String keyword);
+    List<ProductDto> findByCategory0AndKeyword(int page, int size, String keyword);
     long countByCategory0AndKeyword(String keyword);
     Product getByName(String name);
     void saveOrUpdate(Product product);
     void deleteById(int id);
-    Product findById(int id);
-    List<Product> getMaxProducesBySix(int categoryId);
+    ProductDto findById(int id);
+    List<ProductDto> getMaxProducesBySix(int categoryId);
     long countByCategoryId(int categoryId);
 
 }

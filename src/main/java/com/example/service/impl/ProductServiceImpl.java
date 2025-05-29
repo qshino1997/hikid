@@ -21,7 +21,7 @@ public class ProductServiceImpl implements ProductService {
     private final ProductDAO productDAO;
     private final CategoryDAO categoryDAO;
     @Override
-    public List<Product> getAllProductByCatoryId(int categoryId, int page, int size) {
+    public List<ProductDto> getAllProductByCatoryId(int categoryId, int page, int size) {
         // 1. Lấy category
         Category category = categoryDAO.findById(categoryId);
 
@@ -58,7 +58,7 @@ public class ProductServiceImpl implements ProductService {
 
 
     @Override
-    public ProductDto getProductById(int id){
+    public Product getProductById(int id){
         return productDAO.findById(id);
     }
 
@@ -68,7 +68,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public List<Product> getAllProducts(int page, int size, String keyword) {
+    public List<ProductDto> getAllProducts(int page, int size, String keyword) {
         return productDAO.findByKeyword(page, size, keyword);
     }
 
@@ -78,7 +78,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public List<Product> findByCategory0AndKeyword(int page, int size, String keyword) {
+    public List<ProductDto> findByCategory0AndKeyword(int page, int size, String keyword) {
         return productDAO.findByCategory0AndKeyword(page, size, keyword);
     }
 
@@ -103,12 +103,12 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public Product findById(int id){
+    public ProductDto findById(int id){
         return productDAO.getById(id);
     }
 
     @Override
-    public List<Product> getMaxProducesBySix(int categoryId) {
+    public List<ProductDto> getMaxProducesBySix(int categoryId) {
         return productDAO.getMaxProducesBySix(categoryId);
     }
 }

@@ -37,7 +37,7 @@
     const base = '${pageContext.request.contextPath}';
     function loadProducts(page = 1) {
       const kw = $('input[name="keyword"]').val().trim();
-      $.get(base + '/admin/ajaxProduct', { page, size: 10, keyword: kw })
+      $.get(base + '/admin/product/ajaxProduct', { page, size: 10, keyword: kw })
               .done(html => $('#productsTable').html(html))
               .fail((_, status) => alert('Lỗi tải danh sách: ' + status));
     }

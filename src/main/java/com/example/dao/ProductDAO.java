@@ -6,17 +6,17 @@ import com.example.entity.Product;
 import java.util.List;
 
 public interface ProductDAO {
-    List<Product> findAllByCatoryId(int categoryId, int page, int size);
-    ProductDto findById(int id);
+    List<ProductDto> findAllByCatoryId(int categoryId, int page, int size);
+    Product findById(int id);
     Product findByName(String name);
     Integer findPriceByBrandAndAgeRange(String brand, String ageRange);
-    List<Product> findByKeyword(int page, int size, String keyword);
-    List<Product> findByCategory0AndKeyword(int page, int size, String keyword);
+    List<ProductDto> findByKeyword(int page, int size, String keyword);
+    List<ProductDto> findByCategory0AndKeyword(int page, int size, String keyword);
     long countByKeyword(String keyword);
     void save(Product product);
     void delete(int id);
-    Product getById(int id);
-    List<Product> getMaxProducesBySix(int categoryId);
+    ProductDto getById(int id);
+    List<ProductDto> getMaxProducesBySix(int categoryId);
     long countByCategoryId(int categoryId);
     long countByCategory0AndKeyword(String keyword);
 

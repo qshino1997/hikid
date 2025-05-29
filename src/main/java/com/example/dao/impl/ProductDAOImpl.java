@@ -14,14 +14,31 @@ import java.util.List;
 @Repository
 public class ProductDAOImpl extends BaseDAO implements ProductDAO {
     @Override
-    public List<Product> findAllByCatoryId(int categoryId, int page, int size) {
-        String hql = "FROM Product p "
-                + "LEFT JOIN FETCH p.category c "
-                + "LEFT JOIN FETCH p.manufacturer m "
-                + "LEFT JOIN FETCH p.images i "
-                + "WHERE p.category.id = :id ";
+    public List<ProductDto> findAllByCatoryId(int categoryId, int page, int size) {
+        // 1) Build HQL với 2 fetch-join
+        StringBuilder hql = new StringBuilder();
+        hql.append("SELECT new com.example.dto.ProductDto(" +
+                        "p.product_id, " +
+                        "p.name, " +
+                        "p.product_weight, " +
+                        "p.price, " +
+                        "p.made_in, " +
+                        "p.appropriate_age_start, " +
+                        "p.appropriate_age_end, " +
+                        "p.warning, " +
+                        "p.instructions, " +
+                        "p.storage_instructions, " +
+                        "p.stock, " +
+                        "p.category.id, " +
+                        "p.category.name, " +
+                        "p.manufacturer.id, " +
+                        "p.manufacturer.name, " +
+                        "i.url) ")
+                .append("FROM Product p ")
+                .append("LEFT JOIN p.images i ON i.is_primary = true ")
+                .append("WHERE p.category.id = :id ");
 
-        Query<Product> contentQuery = currentSession().createQuery(hql, Product.class);
+        Query<ProductDto> contentQuery = currentSession().createQuery(hql.toString(), ProductDto.class);
         contentQuery.setParameter("id", categoryId);
         contentQuery.setFirstResult((page - 1) * size);
         contentQuery.setMaxResults(size);
@@ -36,13 +53,8 @@ public class ProductDAOImpl extends BaseDAO implements ProductDAO {
     }
 
     @Override
-    public ProductDto findById(int id) {
-        String hql = "select new com.example.dto.ProductDto(p.product_id, p.name, p.product_weight, p.price, p.made_in, p.appropriate_age_start, " +
-                "p .appropriate_age_end, p.warning, p.instructions, p.storage_instructions, p.stock, " +
-                "p.manufacturer.id, p.manufacturer.name, p.manufacturer.country)" +
-                "from Product p where p.product_id = :id";
-
-        return currentSession().createQuery(hql, ProductDto.class)
+    public Product findById(int id) {
+        return currentSession().createQuery("FROM Product p WHERE p.product_id = :id", Product.class)
                 .setParameter("id", id)
                 .uniqueResult();
     }
@@ -75,12 +87,28 @@ public class ProductDAOImpl extends BaseDAO implements ProductDAO {
     }
 
     @Override
-    public List<Product> findByKeyword(int page, int size, String keyword) {
+    public List<ProductDto> findByKeyword(int page, int size, String keyword) {
         // 1) Build HQL với 2 fetch-join
         StringBuilder hql = new StringBuilder();
-        hql.append("SELECT p FROM Product p ")
-                .append("LEFT JOIN FETCH p.category c ")
-                .append("LEFT JOIN FETCH p.manufacturer m ")
+        hql.append("SELECT new com.example.dto.ProductDto(" +
+                        "p.product_id, " +
+                        "p.name, " +
+                        "p.product_weight, " +
+                        "p.price, " +
+                        "p.made_in, " +
+                        "p.appropriate_age_start, " +
+                        "p.appropriate_age_end, " +
+                        "p.warning, " +
+                        "p.instructions, " +
+                        "p.storage_instructions, " +
+                        "p.stock, " +
+                        "p.category.id, " +
+                        "p.category.name, " +
+                        "p.manufacturer.id, " +
+                        "p.manufacturer.name, " +
+                        "i.url) ")
+                .append("FROM Product p ")
+                .append("LEFT JOIN p.images i ON i.is_primary = true ")
                 .append("WHERE 1 = 1 ");
 
         // 2) Thêm điều kiện lọc theo tên nếu có keyword
@@ -89,7 +117,7 @@ public class ProductDAOImpl extends BaseDAO implements ProductDAO {
         }
 
         // 3) Tạo query
-        Query<Product> q = currentSession().createQuery(hql.toString(), Product.class);
+        Query<ProductDto> q = currentSession().createQuery(hql.toString(), ProductDto.class);
 
         if (StringUtils.hasText(keyword)) {
             q.setParameter("kw", "%" + keyword.trim() + "%");
@@ -116,17 +144,34 @@ public class ProductDAOImpl extends BaseDAO implements ProductDAO {
     }
 
     @Override
-    public List<Product> findByCategory0AndKeyword(int page, int size, String keyword) {
-        String hql = "SELECT DISTINCT p FROM Product p "
-                + "JOIN FETCH p.category c "
-                + "JOIN FETCH p.manufacturer m "
-                + "JOIN FETCH p.images i "
-                + "WHERE 1 = 1 ";
+    public List<ProductDto> findByCategory0AndKeyword(int page, int size, String keyword) {
+        // 1) Build HQL với 2 fetch-join
+        StringBuilder hql = new StringBuilder();
+        hql.append("SELECT new com.example.dto.ProductDto(" +
+                        "p.product_id, " +
+                        "p.name, " +
+                        "p.product_weight, " +
+                        "p.price, " +
+                        "p.made_in, " +
+                        "p.appropriate_age_start, " +
+                        "p.appropriate_age_end, " +
+                        "p.warning, " +
+                        "p.instructions, " +
+                        "p.storage_instructions, " +
+                        "p.stock, " +
+                        "p.category.id, " +
+                        "p.category.name, " +
+                        "p.manufacturer.id, " +
+                        "p.manufacturer.name, " +
+                        "i.url) ")
+                .append("FROM Product p ")
+                .append("LEFT JOIN p.images i ON i.is_primary = true ")
+                .append("WHERE 1 = 1 ");
 
         if (keyword != null && !keyword.isBlank()) {
-            hql += "AND (lower(p.name) LIKE :kw OR lower(m.name) LIKE :kw) ";
+            hql.append("AND (lower(p.name) LIKE :kw OR lower(p.manufacturer.name) LIKE :kw) ");
         }
-        Query<Product> contentQuery = currentSession().createQuery(hql, Product.class);
+        Query<ProductDto> contentQuery = currentSession().createQuery(hql.toString(), ProductDto.class);
         if (keyword != null && !keyword.isBlank()) {
             contentQuery.setParameter("kw", "%" + keyword.toLowerCase() + "%");
         }
@@ -167,25 +212,60 @@ public class ProductDAOImpl extends BaseDAO implements ProductDAO {
     }
 
     @Override
-    public Product getById(int id) {
-        String hql = "FROM Product p "
-                    + "LEFT JOIN FETCH p.category c "
-                    + "LEFT JOIN FETCH p.manufacturer m "
-                    + "LEFT JOIN FETCH p.images i "
-                    + "WHERE p.product_id = :id";
-    return currentSession().createQuery(hql, Product.class).setParameter("id", id).uniqueResult();
+    public ProductDto getById(int id) {
+// 1) Build HQL với 2 fetch-join
+        StringBuilder hql = new StringBuilder();
+        hql.append("SELECT new com.example.dto.ProductDto(" +
+                        "p.product_id, " +
+                        "p.name, " +
+                        "p.product_weight, " +
+                        "p.price, " +
+                        "p.made_in, " +
+                        "p.appropriate_age_start, " +
+                        "p.appropriate_age_end, " +
+                        "p.warning, " +
+                        "p.instructions, " +
+                        "p.storage_instructions, " +
+                        "p.stock, " +
+                        "p.category.id, " +
+                        "p.category.name, " +
+                        "p.manufacturer.id, " +
+                        "p.manufacturer.name, " +
+                        "i.url) ")
+                .append("FROM Product p ")
+                .append("LEFT JOIN p.images i ON i.is_primary = true ")
+                .append("WHERE p.product_id = :id ");
+    return currentSession().createQuery(hql.toString(), ProductDto.class).setParameter("id", id).uniqueResult();
     }
 
     @Override
-    public List<Product> getMaxProducesBySix(int categoryId) {
-        String hql = "FROM Product p "
-                + "LEFT JOIN FETCH p.category c "
-                + "LEFT JOIN FETCH p.manufacturer m "
-                + "LEFT JOIN FETCH p.images i "
-                + "WHERE c.id = :id "
-                + "ORDER BY p.price DESC";
+    public List<ProductDto> getMaxProducesBySix(int categoryId) {
+        // 1) Build HQL với 2 fetch-join
+        StringBuilder hql = new StringBuilder();
+        hql.append("SELECT new com.example.dto.ProductDto(" +
+                        "p.product_id, " +
+                        "p.name, " +
+                        "p.product_weight, " +
+                        "p.price, " +
+                        "p.made_in, " +
+                        "p.appropriate_age_start, " +
+                        "p.appropriate_age_end, " +
+                        "p.warning, " +
+                        "p.instructions, " +
+                        "p.storage_instructions, " +
+                        "p.stock, " +
+                        "p.category.id, " +
+                        "p.category.name, " +
+                        "p.manufacturer.id, " +
+                        "p.manufacturer.name, " +
+                        "i.url) ")
+                .append("FROM Product p ")
+                .append("LEFT JOIN p.images i ON i.is_primary = true ")
+                .append("WHERE p.category.id = :id ")
+                .append("ORDER BY p.price DESC");
+
         return currentSession()
-                .createQuery(hql, Product.class)
+                .createQuery(hql.toString(), ProductDto.class)
                 .setParameter("id", categoryId)
                 .setMaxResults(6)
                 .getResultList();
