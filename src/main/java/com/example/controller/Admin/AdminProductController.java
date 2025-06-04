@@ -4,7 +4,9 @@ import com.example.dto.ProductDto;
 import com.example.entity.Category;
 import com.example.entity.Manufacturer;
 import com.example.entity.Product;
+import com.example.entity.ProductImage;
 import com.example.service.CategoryService;
+import com.example.service.Github.GitHubService;
 import com.example.service.ManufacturerService;
 import com.example.service.ProductService;
 import org.modelmapper.ModelMapper;
@@ -13,9 +15,11 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.validation.Valid;
+import java.util.UUID;
 
 @Controller
 @RequestMapping("/admin/product")
@@ -28,6 +32,9 @@ public class AdminProductController {
     private ManufacturerService manufacturerService;
     @Autowired
     private ModelMapper modelMapper;
+
+    @Autowired
+    private GitHubService gitHubService;
 
     @GetMapping
     public String productsPage(){
@@ -73,8 +80,6 @@ public class AdminProductController {
             model.addAttribute("manufacturers", manufacturerService.getAll());
             return "admin/product-details";
         }
-
-        if (checkDuplicateProduct(productDto, model)) return "admin/product-details";
 
         Product product = modelMapper.map(productDto, Product.class);
         Category category = categoryService.findById(productDto.getCategory_id());
@@ -128,9 +133,10 @@ public class AdminProductController {
     public String updateProduct(
             @ModelAttribute("product") @Valid ProductDto dto,
             BindingResult br,
+            @RequestParam("imageFile") MultipartFile imageFile,
             RedirectAttributes ra,
             Model model) {
-
+        // Validate form
         if (br.hasErrors()) {
             model.addAttribute("failed", "Cập nhật sản phẩm that bai!");
             model.addAttribute("categories", categoryService.getAll());
@@ -140,10 +146,8 @@ public class AdminProductController {
             return "admin/product-details";
         }
 
-        if (checkDuplicateProduct(dto, model)) return "admin/product-details";
-
+        // Lấy product cũ từ DB
         Product product = productService.getProductById(dto.getProduct_id());
-
         if(product == null){
             model.addAttribute("failed", "Khong tim thay san pham");
             model.addAttribute("categories", categoryService.getAll());
@@ -153,26 +157,49 @@ public class AdminProductController {
             return "admin/product-details";
         }
 
-        modelMapper.map(dto, product);
+        try{
+            // Xử lý upload ảnh mới nếu có
+            if (imageFile != null && !imageFile.isEmpty()) {
+                String fileName = UUID.randomUUID() + "_" + imageFile.getOriginalFilename();
+                String pathInRepo = "product-images/" + fileName;
+                String commitMessage = "Update product image: " + fileName;
 
-        Category category = categoryService.findById(dto.getCategory_id());
-        Manufacturer manufacturer = manufacturerService.findById(dto.getManufacturer_id());
-        product.setCategory(category);
-        product.setManufacturer(manufacturer);
+                byte[] content = imageFile.getBytes();
+                String imageUrl = gitHubService.uploadFile(pathInRepo, content, commitMessage);
 
-        productService.saveOrUpdate(product);
-        ra.addFlashAttribute("success", "Cập nhật sản phẩm thành công!");
-        return "redirect:/admin/product";
-    }
+                // Cập nhật URL mới vào DTO (để lưu vào entity)
+                dto.setUrl(imageUrl);
+            } else {
+                // Nếu không upload mới, giữ nguyên URL cũ
+                dto.setUrl(product.getImage().getUrl());
+            }
 
-    private boolean checkDuplicateProduct(@ModelAttribute("product") @Valid ProductDto dto, Model model) {
-        if(productService.getByName(dto.getName()) != null){
-            model.addAttribute("failed", "Sản phẩm này đã tồn tại");
-            model.addAttribute("mode", "create");
-            model.addAttribute("categories", categoryService.getAll());
-            model.addAttribute("manufacturers", manufacturerService.getAll());
-            return true;
+            // Map các trường còn lại từ DTO sang entity
+            modelMapper.map(dto, product);
+            if(product.getImage() != null){
+                product.getImage().setUrl(dto.getUrl().isEmpty() ? "" : dto.getUrl());
+            } else {
+                if(!dto.getUrl().isEmpty()){
+                    ProductImage productImage = new ProductImage();
+                    productImage.setProduct(product);
+                    productImage.setIs_primary(true);
+                    productImage.setUrl(dto.getUrl());
+                }
+            }
+            // Cập nhật quan hệ Category và Manufacturer
+            Category category = categoryService.findById(dto.getCategory_id());
+            Manufacturer manufacturer = manufacturerService.findById(dto.getManufacturer_id());
+            product.setCategory(category);
+            product.setManufacturer(manufacturer);
+            // Lưu vào DB
+            productService.saveOrUpdate(product);
+            ra.addFlashAttribute("success", "Cập nhật sản phẩm thành công!");
+        }catch (Exception ex){
+            ra.addFlashAttribute("failed", "Lỗi khi cập nhật sản phẩm");
+            System.out.println(ex.getMessage());
+            return "redirect:/admin/product";
         }
-        return false;
+
+        return "redirect:/admin/product";
     }
 }

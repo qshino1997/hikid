@@ -14,4 +14,6 @@ public interface OrderDao {
     long countOrders(LocalDate start, LocalDate end, String keyword);
     Map<LocalDate, Long> countOrdersByDate(LocalDate startDate, LocalDate endDate);
     List<OrderItem> findOrdersByOrderItemId(int orderId);
+    List<Order> findByUserId(Integer userId);
+    Order findByToken(String token);
 }

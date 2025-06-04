@@ -1,5 +1,6 @@
 package com.example.dto;
 
+import com.example.validation.annotation.UniqueProductName;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -14,6 +15,7 @@ import javax.validation.constraints.Size;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@UniqueProductName
 public class ProductDto extends GetCountryDto{
     private Integer product_id;
 

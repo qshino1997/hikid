@@ -1,6 +1,9 @@
 package com.example.controller.ChatBotController;
 
-import com.example.service.ProductService;
+import com.example.dto.ProductDto;
+import com.example.service.WebhookDialogFlowService.ProductWebhookService;
+import com.example.service.WebhookDialogFlowService.WebhookProcessor;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,85 +13,34 @@ import org.springframework.util.StreamUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 @RestController
 @RequestMapping("/dialogflow")
 public class DialogflowWebhookController {
 
     @Autowired
-    private ProductService productService;  // Service bạn tự viết để truy vấn DB
+    private WebhookProcessor webhookProcessor;
 
     @PostMapping(value = "/webhook",
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public ResponseEntity<?> handleWebhook(HttpServletRequest request) throws IOException {
+    public ResponseEntity<?> handleWebhook(HttpServletRequest request, HttpSession httpSession) throws IOException {
+        // Đọc payload JSON từ request
         byte[] bytes = StreamUtils.copyToByteArray(request.getInputStream());
         String payload = new String(bytes, StandardCharsets.UTF_8);
         System.out.println(payload);
-        // 1. Parse payload thành JsonObject
         JsonObject body = JsonParser.parseString(payload).getAsJsonObject();
 
-        // 2. Lấy intent name
-        String intentName = body
-                .getAsJsonObject("queryResult")
-                .getAsJsonObject("intent")
-                .get("displayName")
-                .getAsString();
+        JsonObject jsonResponse = webhookProcessor.process(body);
 
-        // 3. Lấy parameter "product" và "age_range"
-        JsonObject params = body
-                .getAsJsonObject("queryResult")
-                .getAsJsonObject("parameters");
-
-        String productName = params.has("product") && !params.get("product").isJsonNull()
-                ? params.get("product").getAsString().trim()
-                : "";
-
-        String ageRange = params.has("age_range") && !params.get("age_range").isJsonNull()
-                ? params.get("age_range").getAsString().trim()
-                : "";
-
-
-        // 4. Xác định replyText với fallback
-        String replyText;
-        if ("check_price".equals(intentName)) {
-            if (productName.isEmpty()) {
-                replyText = "Bạn muốn hỏi thương hiệu nào?";
-            } else if (ageRange.isEmpty()) {
-                replyText = String.format("Bạn hỏi sữa %s cho bé độ tuổi nào?", productName);
-            } else {
-                BigDecimal price = BigDecimal.valueOf(productService.findPriceByBrandAndAgeRange(productName, ageRange));
-                if (price != null) {
-                    replyText = String.format("Giá %s (%s) hiện tại là %,d₫.",
-                            productName, ageRange, price.longValue());
-                } else {
-                    replyText = String.format("Không tìm thấy sữa %s cho độ tuổi %s.",
-                            productName, ageRange);
-                }
-            }
-        } else {
-            // Fallback chung cho các intent khác
-            replyText = "Mình chưa hiểu ý bạn, bạn có thể nói lại?";
-        }
-
-        // 5. Tạo response JSON
-        Map<String, String> map = new HashMap<>();
-        map.put("fulfillmentText", replyText);
-
-
-        JsonObject jsonResponse = new JsonObject();
-        jsonResponse.addProperty("fulfillmentText", replyText);
-
-        // 6. Trả về dưới dạng String
         return ResponseEntity.ok()
                 .contentType(MediaType.APPLICATION_JSON)
-                .body(map);
+                .body(jsonResponse);
 
     }
 }

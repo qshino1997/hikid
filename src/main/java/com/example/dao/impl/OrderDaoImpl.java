@@ -140,6 +140,28 @@ public class OrderDaoImpl extends BaseDAO implements OrderDao {
     }
 
     @Override
+    public List<Order> findByUserId(Integer userId) {
+        String hql = "SELECT DISTINCT o " +
+                "FROM Order o " +
+                "LEFT JOIN FETCH o.items i " +
+                "LEFT JOIN FETCH i.product p " +
+                "LEFT JOIN FETCH p.image img " +
+                "WHERE o.user_id = :uid " +
+                "AND o.status != 'CANCELED'" +
+                "ORDER BY o.created_at DESC";
+        return currentSession().createQuery(hql,Order.class).setParameter("uid", userId).getResultList();
+    }
+
+    @Override
+    public Order findByToken(String token) {
+        String hql = "FROM Order o WHERE o.token = :token";
+        return currentSession()
+                .createQuery(hql, Order.class)
+                .setParameter("token", token)
+                .uniqueResult();
+    }
+
+    @Override
     public long countOrders(LocalDate start, LocalDate end, String keyword) {
         LocalDateTime startDt = (start != null)? start.atStartOfDay() : null;
         LocalDateTime endDt   = (end   != null)? end.atTime(23,59,59): null;

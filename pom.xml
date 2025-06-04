@@ -176,6 +176,21 @@
       <version>4.13.2</version>
       <scope>test</scope>
     </dependency>
+
+    <!-- Apache Commons FileUpload -->
+    <dependency>
+      <groupId>commons-fileupload</groupId>
+      <artifactId>commons-fileupload</artifactId>
+      <version>1.5</version>
+    </dependency>
+
+    <!-- Apache Commons IO (thường cần đi kèm) -->
+    <dependency>
+      <groupId>commons-io</groupId>
+      <artifactId>commons-io</artifactId>
+      <version>2.14.0</version>
+    </dependency>
+
   </dependencies>
 
   <build>

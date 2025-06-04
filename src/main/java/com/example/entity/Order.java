@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.Columns;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -11,6 +12,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import javax.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Entity
@@ -52,4 +54,17 @@ public class Order {
 
     @Column(name = "invoice_number", length = 64)
     private String invoice_number;
+
+    @Column(name = "is_processed", nullable = false)
+    private Boolean is_processed = false;
+
+    @Column(name = "token")
+    private String token;
+
+    private LocalDateTime createdAtFormatted;
+
+    public String getCreatedAtFormatted() {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        return created_at.format(formatter);
+    }
 }

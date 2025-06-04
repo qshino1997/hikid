@@ -2,10 +2,8 @@ package com.example.controller;
 
 import com.example.dto.ProductDto;
 import com.example.entity.Category;
-import com.example.entity.Product;
 import com.example.service.CategoryService;
 import com.example.service.ProductService;
-import com.google.api.gax.paging.Page;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -43,7 +41,7 @@ public class ProductController {
 
         model.addAttribute("keyword", keyword);
 
-        return "productsBySearch";
+        return "products-by-search";
     }
 
     @GetMapping("/{categoryId}/loadAjax")
@@ -66,7 +64,7 @@ public class ProductController {
         model.addAttribute("pages", (int)Math.ceil((double)total/size));
         model.addAttribute("keyword", keyword);
 
-        return "_productList";
+        return "product-list";
     }
 
     @GetMapping("/searchLoadAjax")
@@ -84,7 +82,7 @@ public class ProductController {
         model.addAttribute("pages", (int)Math.ceil((double)total/size));
         model.addAttribute("keyword", keyword);
 
-        return "_productList";
+        return "product-list";
     }
 
     @GetMapping("/{id}")

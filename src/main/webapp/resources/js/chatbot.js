@@ -1,10 +1,10 @@
 document.addEventListener("DOMContentLoaded", () => {
-    const popup = document.getElementById("chatbot-popup");
-    const openBtn = document.getElementById("open-chatbot");
-    const closeBtn = document.getElementById("chatbot-header");
-    const sendBtn = document.getElementById("send-message");
-    const input = document.getElementById("message-input");
-    const body = document.getElementById("chatbot-body");
+    const popup = document.getElementById("mychatbot-popup");
+    const openBtn = document.getElementById("open-mychatbot");
+    const closeBtn = document.getElementById("mychatbot-close");
+    const sendBtn = document.getElementById("mychat-send");
+    const input = document.getElementById("mychat-input");
+    const body = document.getElementById("mychatbot-body");
 
     // Mở popup
     openBtn.addEventListener("click", () => {
@@ -34,9 +34,9 @@ document.addEventListener("DOMContentLoaded", () => {
     // Hàm thêm message vào body
     function appendMessage(who, text) {
         const msg = document.createElement("div");
-        msg.classList.add("message", who);
+        msg.classList.add("mychat-message", who);
         const bubble = document.createElement("div");
-        bubble.classList.add("bubble");
+        bubble.classList.add("mychat-bubble");
         bubble.textContent = text;
         msg.appendChild(bubble);
         body.appendChild(msg);
@@ -48,10 +48,17 @@ document.addEventListener("DOMContentLoaded", () => {
         fetch("/chatbot/ask", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
+            credentials: "include",
             body: JSON.stringify({ userQuery: userQuery })
         })
             .then(res => res.json())
-            .then(data => appendMessage("bot", data.response))
+            .then(data => {
+                if (data.qty != null) {
+                    const cartCountEl = document.getElementById('cart-count');
+                    if (cartCountEl) cartCountEl.textContent = data.qty;
+                }
+                appendMessage("bot", data.response);
+            })
             .catch(() => appendMessage("bot", "Lỗi kết nối, xin thử lại sau"));
     }
 });

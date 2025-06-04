@@ -3,6 +3,7 @@
 <table class="table table-bordered fixed-table-height">
   <thead>
   <tr>
+    <th>#</th>
     <th>Họ tên</th>
     <th>Email</th>
     <th>Phone</th>
@@ -11,8 +12,9 @@
   </tr>
   </thead>
   <tbody>
-  <c:forEach var="u" items="${users}">
+  <c:forEach var="u" items="${users}" varStatus="st">
     <tr>
+      <td>${st.index + 1 + (page-1)*10}</td>
       <td>${u.username}</td>
       <td>${u.email}</td>
       <td>${u.phone}</td>

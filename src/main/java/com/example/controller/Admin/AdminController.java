@@ -122,33 +122,27 @@ public class AdminController {
         }
 
         if (dto.getUser_id() == null) {
-            if(userService.findByEmail((dto.getEmail())) != null){
-                model.addAttribute("user", dto);
-                model.addAttribute("failed", "Email da ton tai, vui long nhap email khac");
-                model.addAttribute("mode", "create");
-                return "admin/profile";
-            } else {
-                // ==== TẠO MỚI ====
-                User newUser = new User();
-                newUser.setUsername(dto.getUsername());
-                newUser.setEmail(dto.getEmail());
-                newUser.setPassword(passwordEncoder.encode("123456"));
+            // ==== TẠO MỚI ====
+            User newUser = new User();
+            newUser.setUsername(dto.getUsername());
+            newUser.setEmail(dto.getEmail());
+            newUser.setPassword(passwordEncoder.encode("123456"));
 
-                // Gán role mặc định EMPLOYEE (id = 2)
-                newUser.getRoles().add(roleService.findById(2));
+            Role roleEmployee = roleService.findById(2);
+            // Gán role mặc định EMPLOYEE (id = 2)
+            newUser.getRoles().add(roleEmployee);
 
-                UserProfile profile = new UserProfile();
-                profile.setUser(newUser);           // set liên kết 2 chiều
-                profile.setDate_of_birth(dto.getDate_of_birth());
-                profile.setPhone(dto.getPhone());
-                profile.setAddress(dto.getAddress());
-                newUser.setProfile(profile);
+            UserProfile profile = new UserProfile();
+            profile.setUser(newUser);           // set liên kết 2 chiều
+            profile.setDate_of_birth(dto.getDate_of_birth());
+            profile.setPhone(dto.getPhone());
+            profile.setAddress(dto.getAddress());
+            newUser.setProfile(profile);
 
-                userService.saveOrUpdate(newUser);
+            userService.saveOrUpdate(newUser);
 
-                ra.addFlashAttribute("success", "Tạo nhân viên mới thành công!");
-                return "redirect:/admin/";
-            }
+            ra.addFlashAttribute("success", "Tạo nhân viên mới thành công!");
+            return "redirect:/admin/";
         } else {
             User user = userService.findById(dto.getUser_id());
             if (user != null) {
@@ -178,6 +172,7 @@ public class AdminController {
             @RequestParam String oldPassword,
             @RequestParam String newPassword,
             @RequestParam String confirmPassword,
+            RedirectAttributes ra,
             Model model) {
         User user = userService.findById(userId);
 
@@ -194,19 +189,19 @@ public class AdminController {
 
         // Kiểm tra mật khẩu cũ đúng không
         if (!passwordEncoder.matches(oldPassword, user.getPassword())) {
-            model.addAttribute("pwdError", "Mật khẩu cũ không đúng");
-            return "admin/profile";
+            ra.addFlashAttribute("pwdError", "Mật khẩu cũ không đúng");
+            return "redirect:/admin/"+ userId + "/profile";
         }
         // Kiểm tra new vs confirm
         if (!newPassword.equals(confirmPassword)) {
-            model.addAttribute("pwdError", "Mật khẩu mới và xác nhận không khớp");
-            return "admin/profile";
+            ra.addFlashAttribute("pwdError", "Mật khẩu mới và xác nhận không khớp");
+            return "redirect:/admin/"+ userId + "/profile";
         }
 
         // Lưu mật khẩu mới (hash bằng BCrypt)
         userService.updatePassword(user.getEmail(), passwordEncoder.encode(newPassword));
-        model.addAttribute("pwdSuccess", "Đổi mật khẩu thành công");
-        return "admin/profile";
+        ra.addFlashAttribute("pwdSuccess", "Đổi mật khẩu thành công");
+        return "redirect:/admin/"+ userId + "/profile";
     }
 
     @GetMapping("/{id}/delete")

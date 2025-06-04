@@ -1,7 +1,9 @@
 package com.example.controller.Admin;
 
+import com.example.dto.ManufacturerDto;
 import com.example.entity.Manufacturer;
 import com.example.service.ManufacturerService;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -18,6 +20,8 @@ public class AdminManufacturerController {
     @Autowired
     private ManufacturerService manufacturerService;
 
+    @Autowired
+    private ModelMapper modelMapper;
     // 1. Trang chính quản lý nhà sản xuất
     @GetMapping("")
     public String listPage() {
@@ -44,14 +48,14 @@ public class AdminManufacturerController {
 
     @GetMapping("/create")
     public String showCreateForm(Model model) {
-        model.addAttribute("manufacturer", new Manufacturer());
+        model.addAttribute("manufacturer", new ManufacturerDto());
         model.addAttribute("mode", "create");
         return "admin/manufacturer-detail";
     }
 
     @PostMapping("/save")
     public String saveManufacturer(
-            @ModelAttribute("manufacturer") @Valid Manufacturer manufacturer,
+            @ModelAttribute("manufacturer") @Valid ManufacturerDto manufacturerDto,
             BindingResult br,
             Model model,
             RedirectAttributes ra) {
@@ -61,12 +65,12 @@ public class AdminManufacturerController {
             return "admin/manufacturer-detail";
         }
 
-        if(manufacturerService.findByName(manufacturer.getName().trim()) != null){
+        if(manufacturerService.findByName(manufacturerDto.getName().trim()) != null){
             model.addAttribute("failed", "Nhà sản xuất này đã tồn tại");
             model.addAttribute("mode", "create");
             return "admin/manufacturer-detail";
         }
-
+        Manufacturer manufacturer = modelMapper.map(manufacturerDto, Manufacturer.class);
         manufacturerService.saveOrUpdate(manufacturer);
         ra.addFlashAttribute("success", "Thêm nhà sản xuất thành công!");
         return "redirect:/admin/manufacturer";
@@ -90,7 +94,7 @@ public class AdminManufacturerController {
 
     @PostMapping("/update")
     public String updateManufacturer(
-            @ModelAttribute("manufacturer") @Valid Manufacturer manufacturer,
+            @ModelAttribute("manufacturer") @Valid ManufacturerDto manufacturerDto,
             BindingResult br,
             Model model,
             RedirectAttributes ra) {
@@ -100,12 +104,8 @@ public class AdminManufacturerController {
             return "admin/manufacturer-detail";
         }
 
-        if(manufacturerService.findByName(manufacturer.getName().trim()) != null){
-            model.addAttribute("failed", "Nhà sản xuất này đã tồn tại");
-            model.addAttribute("mode", "edit");
-            return "admin/manufacturer-detail";
-        }
-
+        Manufacturer manufacturer = manufacturerService.findById(manufacturerDto.getId());
+        manufacturer = modelMapper.map(manufacturerDto, Manufacturer.class);
         manufacturerService.saveOrUpdate(manufacturer);
         ra.addFlashAttribute("success", "Cập nhật nhà sản xuất thành công!");
         return "redirect:/admin/manufacturer";

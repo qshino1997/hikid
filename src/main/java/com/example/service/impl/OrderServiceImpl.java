@@ -1,27 +1,27 @@
 package com.example.service.impl;
 
 import com.example.dao.OrderDao;
-import com.example.dto.PageResult;
+import com.example.dto.CartItemDto;
 import com.example.entity.Order;
 import com.example.entity.OrderItem;
-import com.example.service.CartService;
+import com.example.entity.Product;
+import com.example.service.Cart.CartService;
 import com.example.service.OrderService;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
+import com.example.service.ProductService;
+import com.example.util.CartUtil;
+import com.example.util.SecurityUtil;
 import com.paypal.api.payments.*;
 import com.paypal.base.rest.APIContext;
 import com.paypal.base.rest.PayPalRESTException;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.servlet.http.HttpSession;
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -33,23 +33,50 @@ public class OrderServiceImpl implements OrderService {
     @Autowired
     private APIContext apiContext;
 
-    @Override
-    public String createPendingOrderAndGetApprovalUrl(HttpSession session) throws PayPalRESTException {
-        @SuppressWarnings("unchecked")
-        CartService cartService = (CartService) session.getAttribute("CART");
-        if (cartService == null || cartService.isEmpty()) {
-            throw new IllegalStateException("Giỏ hàng đang trống!");
-        }
+    @Autowired
+    private SecurityUtil securityUtil;
 
-        // 1. Luu Order với PENDING_PAYMENT
+    @Autowired
+    private ProductService productService;
+
+    @Autowired
+    private CartUtil cartUtil;
+    @Override
+    public String createPendingOrderAndGetApprovalUrl() throws PayPalRESTException {
+        CartService cartService = cartUtil.currentCart();
+
+        // Luu Order với PENDING_PAYMENT
         Order order = new Order();
-        order.setUser_id(2);
+        order.setUser_id(securityUtil.getCurrentId());
         BigDecimal total = BigDecimal.valueOf(cartService.getTotal());
         order.setTotal_amount(total);
         order.setStatus("PENDING_PAYMENT");
+
+        Collection<CartItemDto> getItems = cartService.getItems();
+        List<OrderItem> orderItemList = new ArrayList<>();
+        // Tạo các OrderItem từ cartService.getItems()
+        getItems.forEach(cartItemDto -> {
+            OrderItem oi = new OrderItem();
+
+            // Gán relation Order ←→ OrderItem
+            oi.setOrder(order);
+
+            // Lấy Product entity từ DB dựa trên productId từ CartItemDto
+            Integer prodId = cartItemDto.getProduct().getProduct_id();
+            Product product = productService.getProductById(prodId);
+            oi.setProduct(product);
+
+            // Gán số lượng và đơn giá
+            oi.setQuantity(cartItemDto.getQuantity());
+            oi.setUnit_price(BigDecimal.valueOf(cartItemDto.getProduct().getPrice()));
+
+            // Thêm vào danh sách items của Order
+            orderItemList.add(oi);
+        });
+        order.setItems(orderItemList);
         orderDao.save(order);
 
-        // 2. Tạo PayPal Payment
+        // Tạo PayPal Payment
         Payer payer = new Payer().setPaymentMethod("paypal");
         List<Item> items = cartService.getItems().stream()
                 .map(ci -> new Item()
@@ -70,8 +97,8 @@ public class OrderServiceImpl implements OrderService {
         RedirectUrls urls = new RedirectUrls()
                 .setCancelUrl("https://hikid.onrender.com/cart")
                 .setReturnUrl("https://hikid.onrender.com/order/success");
-        //                .setCancelUrl("https://059d-2405-4802-a5fe-1f50-959d-f90b-890-1b5e.ngrok-free.app/cart")
-//                .setReturnUrl("https://059d-2405-4802-a5fe-1f50-959d-f90b-890-1b5e.ngrok-free.app/order/success");
+//                .setCancelUrl("https://be21-2405-4802-a3d6-0-65a8-24b-27b4-22e7.ngrok-free.app/order/cancel")
+//                .setReturnUrl("https://be21-2405-4802-a3d6-0-65a8-24b-27b4-22e7.ngrok-free.app/order/success");
         Payment payment = new Payment()
                 .setIntent("sale")
                 .setPayer(payer)
@@ -87,8 +114,20 @@ public class OrderServiceImpl implements OrderService {
                     .orElseThrow(() -> new IllegalStateException("Không tìm được approval_url"))
                     .getHref();
 
+            String token = null;
+            int idx = approvalUrl.indexOf("token=");
+            if (idx >= 0) {
+                token = approvalUrl.substring(idx + 6);
+                // Nếu URL còn các tham số khác phía sau token,
+                // bạn có thể xử lý bằng cách cắt đến dấu & đầu tiên (nếu có):
+                int ampIndex = token.indexOf('&');
+                if (ampIndex > 0) {
+                    token = token.substring(0, ampIndex);
+                }
+            }
             // 4. Cập nhật paymentId vào order
             order.setPayment_id(created.getId());
+            order.setToken(token);
             orderDao.save(order);
 
             return approvalUrl;
@@ -109,7 +148,9 @@ public class OrderServiceImpl implements OrderService {
             // set status = “PAID”
             order.setStatus("PAID");
             orderDao.save(order);
+
             // Có thể gửi mail, log, push notification…
+
         } else {
             // Log: không tìm thấy order nào với paymentId này
             System.err.println("Webhook: Order not found for paymentId= " + paymentId);
@@ -134,5 +175,25 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public List<OrderItem> findOrdersByOrderItemId(int orderId) {
         return orderDao.findOrdersByOrderItemId(orderId);
+    }
+
+    @Override
+    public List<Order> findByUserId(Integer userId) {
+        return orderDao.findByUserId(userId);
+    }
+
+    @Override
+    public Order findByPaymentId(String paymentId) {
+        return orderDao.findByPaymentId(paymentId);
+    }
+
+    @Override
+    public void saveOrUpdate(Order order) {
+        orderDao.save(order);
+    }
+
+    @Override
+    public Order findByToken(String token) {
+        return orderDao.findByToken(token);
     }
 }

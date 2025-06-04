@@ -66,10 +66,11 @@
                         <div class="mb-3">
                             <label class="form-label">Email</label>
                             <form:input path="email" cssClass="form-control" type="email" readonly="${mode != 'create'}"/>
+                            <form:errors path="email" cssClass="text-danger"/>
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Ngày sinh</label>
-                            <form:input path="date_of_birth" type="text" cssClass="form-control editable" readonly="${mode != 'create'}"/>
+                            <form:input path="date_of_birth" type="date" cssClass="form-control editable" readonly="${mode != 'create'}"/>
                             <form:errors path="date_of_birth" cssClass="text-danger"/>
                         </div>
                         <div class="mb-3">

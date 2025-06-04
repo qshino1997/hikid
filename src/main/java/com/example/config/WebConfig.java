@@ -1,6 +1,8 @@
 package com.example.config;
 
 import com.google.gson.Gson;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -9,7 +11,10 @@ import org.springframework.format.datetime.standard.DateTimeFormatterRegistrar;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.json.GsonHttpMessageConverter;
 import org.springframework.orm.hibernate5.support.OpenSessionInViewFilter;
-import org.springframework.web.filter.CharacterEncodingFilter;
+import org.springframework.validation.Validator;
+import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.web.multipart.commons.CommonsMultipartResolver;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
@@ -22,6 +27,25 @@ import java.util.List;
 @EnableWebMvc
 @ComponentScan(basePackages = "com.example")
 public class WebConfig implements WebMvcConfigurer {
+
+    @Override
+    @Bean
+    public Validator getValidator() {
+        return new LocalValidatorFactoryBean();
+    }
+
+    @Bean
+    public RestTemplate restTemplate() {
+        return new RestTemplate();
+    }
+
+    @Bean
+    public CommonsMultipartResolver multipartResolver() {
+        CommonsMultipartResolver resolver = new CommonsMultipartResolver();
+        // cho phép max 5MB
+        resolver.setMaxUploadSize(5 * 1024 * 1024);
+        return resolver;
+    }
 
     @Override
     public void addFormatters(FormatterRegistry registry) {

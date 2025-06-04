@@ -51,7 +51,7 @@
 
                 <div class="mb-3">
                     <label class="form-label">Danh mục cha</label>
-                    <form:select path="parent.id" cssClass="form-select editable"
+                    <form:select path="categoryParentId" cssClass="form-select editable"
                                  disabled="${mode!='create'}">
                         <form:option value=""> </form:option>
                         <c:forEach var="p" items="${parents}">

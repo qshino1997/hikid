@@ -1,9 +1,18 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 
 <link href="<c:url value='/resources/css/custom.css'/>" rel="stylesheet" type="text/css"/>
 <link href="<c:url value='/resources/css/styles.css'/>" rel="stylesheet" type="text/css"/>
+<!-- CSS/JS chung -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.9.1/font/bootstrap-icons.css" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600&display=swap" rel="stylesheet">
+
+<link href="<c:url value='/resources/css/custom.css'/>" rel="stylesheet" type="text/css"/>
+<link href="<c:url value='/resources/css/styles.css'/>" rel="stylesheet" type="text/css"/>
+<link href="<c:url value='/resources/css/image.css'/>" rel="stylesheet" type="text/css"/>
 
 <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm sticky-top">
     <div class="container">
@@ -35,9 +44,7 @@
                 <li class="nav-item me-3 position-relative">
                     <a class="btn btn-outline-primary position-relative" href="/cart">
                         <i class="bi bi-cart3 fs-5"></i>
-                        <span id="cart-count" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-                            ${cart.totalQuantity}
-                        </span>
+                        <span id="cart-count" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">${cartCount}</span>
                     </a>
                 </li>
 
@@ -45,6 +52,11 @@
                     <li class="nav-item">
                         <button class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#loginModal">
                             <i class="bi bi-person"></i> Đăng nhập
+                        </button>
+                    </li>
+                    <li class="nav-item ms-2">
+                        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#registerModal">
+                            <i class="bi bi-pencil-square"></i> Đăng ký
                         </button>
                     </li>
                 </sec:authorize>
@@ -57,6 +69,7 @@
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userMenu">
                             <li><a class="dropdown-item" href="<c:url value='/user/profile'/>">Trang cá nhân</a></li>
+                            <li><a class="dropdown-item" href="<c:url value='/order/history'/>">Lịch sử đơn hàng</a></li>
                             <li><hr class="dropdown-divider"></li>
                             <li><a class="dropdown-item" href="<c:url value='/logout'/>">Đăng xuất</a></li>
                         </ul>
@@ -89,17 +102,52 @@
                         <input type="password" class="form-control" id="password" name="password"
                                placeholder="Nhập mật khẩu" required>
                     </div>
-<%--                    <c:if test="${param.error != null}">--%>
-<%--                        <div class="alert alert-danger py-2" role="alert">--%>
-<%--                            Tên đăng nhập hoặc mật khẩu không đúng!--%>
-<%--                        </div>--%>
-<%--                    </c:if>--%>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
                     <button type="submit" class="btn btn-primary">Đăng nhập</button>
                 </div>
             </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Register -->
+<div class="modal fade" id="registerModal" tabindex="-1" aria-labelledby="registerModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <form:form action="${pageContext.request.contextPath}/register" method="post" modelAttribute="registerForm">
+                <div class="modal-body">
+                    <form:hidden path="user_id" cssClass="form-control" />
+                    <div class="mb-3">
+                        <label class="form-label">Họ tên</label>
+                        <form:input path="username" cssClass="form-control" placeholder="Nhập họ tên" required="required"/>
+                        <form:errors path="username" cssClass="text-danger"/>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Email</label>
+                        <form:input path="email" type="email" cssClass="form-control" placeholder="Nhập email" required="required"/>
+                        <form:errors path="email" cssClass="text-danger"/>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Mật khẩu</label>
+                        <form:password path="password" cssClass="form-control" placeholder="Tạo mật khẩu" required="required"/>
+                        <form:errors path="password" cssClass="text-danger"/>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Xác nhận mật khẩu</label>
+                        <form:password path="confirmPassword"
+                                       cssClass="form-control"
+                                       placeholder="Nhập lại mật khẩu"
+                                       required="required"/>
+                        <form:errors path="confirmPassword" cssClass="text-danger"/>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="submit" class="btn btn-success">Đăng ký</button>
+                </div>
+            </form:form>
         </div>
     </div>
 </div>

@@ -1,11 +1,13 @@
 package com.example.entity;
 
+import com.example.validation.annotation.UniqueCategoryName;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.util.List;
 import java.util.Set;
@@ -24,6 +26,7 @@ public class Category {
     private Integer id;
 
     @Column(name = "name", nullable = false, length = 100)
+    @NotBlank(message = "Tên danh mục không được để trống")
     private String name;
 
     // Quan hệ cha

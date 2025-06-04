@@ -23,7 +23,7 @@ public class ProductImage {
     @Column(name = "is_primary")
     private Boolean is_primary = false;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "product_id", nullable = false)
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "product_id")
     private Product product;
 }

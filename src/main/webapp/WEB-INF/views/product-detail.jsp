@@ -16,7 +16,17 @@
     <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600&display=swap" rel="stylesheet"/>
 </head>
 <body class="d-flex flex-column min-vh-100">
-
+<div class="position-fixed top-0 end-0 p-3" style="z-index: 1080;">
+    <div id="cartToast" class="toast align-items-center text-bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true"
+         data-bs-autohide="true"
+         data-bs-delay="2000">
+        <div class="d-flex">
+            <div class="toast-body">
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+    </div>
+</div>
 <!-- Banner & Header -->
 <div class="banner mb-4"></div>
 <jsp:include page="/WEB-INF/views/fragment/header.jsp"/>
@@ -39,7 +49,7 @@
     <div class="row p-4" style="background-color: white">
         <!-- Image -->
         <div class="col-md-6 text-center">
-            <img src="<c:url value='/resources/images/${product.url}'/>"
+            <img src="${product.url}"
                  alt="${product.name}"
                  onerror="this.onerror=null; this.src='<c:url value='/resources/images/default.png'/>'"
                  style="width:360px; height:360px; object-fit:contain;" />
@@ -54,18 +64,14 @@
             <!-- Stock -->
             <p>Kho còn: <strong>${product.stock}</strong> chiếc</p>
 
-            <!-- Add to Cart -->
-            <form action="${pageContext.request.contextPath}/cart/add" method="post" class="mt-4">
-                <input type="hidden" name="productId" value="${product.product_id}"/>
-                <input type="hidden" name="mode" value="1"/>
-                <div class="input-group mb-3" style="max-width: 140px;">
-                    <span class="input-group-text">SL</span>
-                    <input type="number" name="quantity" class="form-control" value="1" min="1" max="${product.stock}"/>
-                </div>
-                <button type="submit" class="btn btn-primary btn-lg">
-                    <i class="bi-cart-plus me-1"></i> Thêm vào giỏ
-                </button>
-            </form>
+            <button
+                    type="button"
+                    class="btn btn-sm btn-primary js-add-to-cart"
+                    data-product-id="${product.product_id}"
+                    data-quantity="1"
+                    data-product-name="${product.name}">
+                <i class="bi bi-cart-plus"></i> Thêm vào giỏ hàng
+            </button>
         </div>
     </div>
 
@@ -124,6 +130,10 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="${pageContext.request.contextPath}/resources/js/custom.js"></script>
-
+<script src="${pageContext.request.contextPath}/resources/js/cart.js"></script>
+<script>
+// Định nghĩa biến toàn cục cho mọi script sau này dùng
+window.ADD_TO_CART_URL = '${pageContext.request.contextPath}/cart/add';
+</script>
 </body>
 </html>

@@ -1,8 +1,10 @@
 package com.example.controller.Admin;
 
-import com.example.dto.CategoryOption;
+import com.example.dto.CategoryDto;
+import com.example.dto.Form.CategoryOption;
 import com.example.entity.Category;
 import com.example.service.CategoryService;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Controller;
@@ -21,6 +23,9 @@ public class AdminCategoryController {
 
     @Autowired
     private CategoryService categoryService;
+
+    @Autowired
+    private ModelMapper modelMapper;
 
     @GetMapping
     public String categoriesPage() {
@@ -45,7 +50,7 @@ public class AdminCategoryController {
     // Hiển thị form Thêm mới
     @GetMapping("/create")
     public String showCreateForm(Model model) {
-        model.addAttribute("category", new Category());
+        model.addAttribute("category", new CategoryDto());
         List<CategoryOption> parents = categoryService.findParentsUpToLevel(2);
         model.addAttribute("parents", parents);
         model.addAttribute("mode", "create");
@@ -55,32 +60,22 @@ public class AdminCategoryController {
     // Xử lý POST Thêm mới
     @PostMapping("/create")
     public String createCategory(
-            @Valid @ModelAttribute("category") Category category,
+            @Valid @ModelAttribute("category") CategoryDto categoryDto,
             BindingResult result,
             Model model,
             RedirectAttributes redirectAttrs
     ) {
         if (result.hasErrors()) {
-            model.addAttribute("category", category);
+            model.addAttribute("category", categoryDto);
             model.addAttribute("parents", categoryService.findParentsUpToLevel(2));
-            model.addAttribute("failed", "Tạo danh mục không thành công");
             model.addAttribute("mode", "create");
             return "admin/category-details";
         }
 
-        if(categoryService.findByName(category.getName()) != null){
-            model.addAttribute("category", category);
-            model.addAttribute("parents", categoryService.findParentsUpToLevel(2));
-            model.addAttribute("failed", "Danh mục này đã tồn tại");
-            model.addAttribute("mode", "create");
-            return "admin/category-details";
+        Category category = modelMapper.map(categoryDto, Category.class);
+        if(categoryDto.getCategoryParentId() != null){
+            category.setParent(categoryService.findById(categoryDto.getCategoryParentId()));
         }
-
-        if(category.getParent().getId() == null){
-            category.setParent(null);
-        }
-
-        category.setProducts(null);
 
         categoryService.save(category);
         redirectAttrs.addFlashAttribute("success", "Tạo danh mục mới thành công!");
@@ -121,7 +116,9 @@ public class AdminCategoryController {
             ra.addFlashAttribute("failed", "Không tìm thấy danh mục");
             return "redirect:/admin/category";
         }
-        model.addAttribute("category", c);
+        CategoryDto categoryDto = modelMapper.map(c, CategoryDto.class);
+
+        model.addAttribute("category", categoryDto);
         model.addAttribute("mode", "edit");
         List<CategoryOption> parents = categoryService.findParentsUpToLevel(2);
         model.addAttribute("parents", parents);
@@ -131,76 +128,68 @@ public class AdminCategoryController {
 
     @PostMapping("/update")
     public String updateCategory(
-            @ModelAttribute("category") Category _category,
+            @Valid @ModelAttribute("category") CategoryDto categoryDto,
+            BindingResult bindingResult,
             Model model,
             RedirectAttributes ra
     ) {
-        // 1. Lấy category cũ
-        Category category = categoryService.findById(_category.getId());
 
-        if(category == null || _category.getName().isEmpty()){
+        // Nếu đã có lỗi @Valid (ví dụ @NotBlank, @UniqueCategoryName)
+        if (bindingResult.hasErrors()) {
             model.addAttribute("mode", "edit");
-            List<CategoryOption> parents = categoryService.findParentsUpToLevel(2);
-            model.addAttribute("parents", parents);
-            model.addAttribute("failed", "Cập nhật danh mục thất bại");
-            return "admin/category-details";
-        }
-
-        if(categoryService.findByName(category.getName()) != null){
-            model.addAttribute("category", category);
             model.addAttribute("parents", categoryService.findParentsUpToLevel(2));
-            model.addAttribute("failed", "Danh mục này đã tồn tại");
-            model.addAttribute("mode", "edit");
             return "admin/category-details";
         }
 
-        // 2. Cập nhật tên
-        category.setName(_category.getName().trim());
+        // Lấy category cũ
+        Category category = categoryService.findById(categoryDto.getId());
 
-        // 3. Cập nhật parent (null nếu không chọn)
-        if (_category.getParent().getId() != null ) {
-            if (category.getSubCategories() != null && category.getSubCategories().size() != 0) {
-                model.addAttribute("mode", "edit");
-                List<CategoryOption> parents = categoryService.findParentsUpToLevel(2);
-                model.addAttribute("parents", parents);
-                model.addAttribute("failed", "Không thể sửa vì danh mục này đang có danh mục con.");
-                return "admin/category-details";
-            }
+        // Kiểm tra subCategories trước: nếu có con, lỗi luôn, không xét tiếp
+        if (category.getSubCategories() != null && !category.getSubCategories().isEmpty()) {
+            bindingResult.rejectValue(
+                    "name",
+                    "category.hasChildren",
+                    "Không thể sửa vì danh mục này đang có danh mục con.");
+            model.addAttribute("mode", "edit");
+            model.addAttribute("parents", categoryService.findParentsUpToLevel(2));
+            return "admin/category-details";
+        }
 
-            Category parent = categoryService.findById(_category.getParent().getId());
+        // Kiểm tra parent trùng chính nó
+        if(Objects.equals(categoryDto.getId(), categoryDto.getCategoryParentId())){
+            bindingResult.rejectValue(
+                    "categoryParentId",
+                    "category.parentSelf",
+                    "Thao tác sai, danh mục cha không được trùng với chính nó"
+            );
+            model.addAttribute("mode", "edit");
+            model.addAttribute("parents", categoryService.findParentsUpToLevel(2));
+            return "admin/category-details";
+        }
 
+        Category parent = null;
+        // Cập nhật parent (null nếu không chọn)
+        if (categoryDto.getCategoryParentId() != null ) {
+            parent = categoryService.findById(categoryDto.getCategoryParentId());
             if(parent == null){
+                bindingResult.rejectValue(
+                        "categoryParentId",
+                        "category.parentMissing",
+                        "Không tìm thấy danh mục cha"
+                );
                 model.addAttribute("mode", "edit");
-                List<CategoryOption> parents = categoryService.findParentsUpToLevel(2);
-                model.addAttribute("parents", parents);
-                model.addAttribute("failed", "Không tìm thấy danh muc cha");
+                model.addAttribute("parents", categoryService.findParentsUpToLevel(2));
                 return "admin/category-details";
             }
-
-            if(category.getParent() == null){
-                category.setParent(parent);
-            }
-
-            if(Objects.equals(parent.getId(), _category.getId())){
-                model.addAttribute("mode", "edit");
-                List<CategoryOption> parents = categoryService.findParentsUpToLevel(2);
-                model.addAttribute("parents", parents);
-                model.addAttribute("failed", "Thao tác sai, danh mục bị trùng");
-                return "admin/category-details";
-            }
-
-            if(category.getParent() != null
-                    && (!Objects.equals(parent.getId(), _category.getId()))){
-                category.setParent(parent);
-            }
         }
-         else {
-            category.setParent(null);
-        }
-        // 4. Lưu vào CSDL
+
+        category.setName(categoryDto.getName().trim());
+        category.setParent(parent);
+
+        // Lưu vào CSDL
         categoryService.save(category);
 
-        // 5. Trả về success
+        // Trả về success
         ra.addFlashAttribute("success", "Cập nhật danh mục thành công!");
         return "redirect:/admin/category";
     }

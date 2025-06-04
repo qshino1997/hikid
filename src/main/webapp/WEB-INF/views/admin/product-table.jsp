@@ -4,6 +4,7 @@
 <table class="table table-bordered fixed-table-height-product">
     <thead>
     <tr>
+        <th>Hình ảnh</th>
         <th>Tên</th>
         <th>Xuất xứ</th>
         <th>Khối lượng</th>
@@ -16,9 +17,14 @@
     </tr>
     </thead>
     <tbody>
-    <c:forEach var="p" items="${products}">
+    <c:forEach var="p" items="${products}" varStatus="st">
         <tr>
             <td style="display: none;">${p.product_id}</td>
+            <td>
+                <img src="${p.url}"
+                     alt="${p.name}"
+                     style="width: 70px; height: auto; object-fit: cover;" />
+            </td>
             <td>${p.name}</td>
             <td>${p.made_in}</td>
             <td>${p.product_weight}</td>
@@ -26,7 +32,7 @@
             <td>${p.appropriate_age_start} - ${p.appropriate_age_end}</td>
             <td>${p.stock}</td>
             <td>${p.category_name != null ? p.category_name : ''}</td>
-            <td>${p.manufacturer_name != null ? p.category_name : ''}</td>
+            <td>${p.manufacturer_name != null ? p.manufacturer_name : ''}</td>
             <td>
                 <a href="<c:url value='/admin/product/${p.product_id}/edit'/>"
                    class="btn btn-sm btn-primary">Sửa</a>

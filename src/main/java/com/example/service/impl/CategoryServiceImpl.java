@@ -1,7 +1,7 @@
 package com.example.service.impl;
 
 import com.example.dao.CategoryDAO;
-import com.example.dto.CategoryOption;
+import com.example.dto.Form.CategoryOption;
 import com.example.entity.Category;
 import com.example.service.CategoryService;
 import lombok.RequiredArgsConstructor;

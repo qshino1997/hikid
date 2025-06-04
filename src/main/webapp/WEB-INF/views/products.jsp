@@ -9,16 +9,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <title>Danh sách sản phẩm</title>
-
-  <!-- Bootstrap CSS + Icons + Font -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet"/>
-  <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600&display=swap" rel="stylesheet"/>
-  <link href="<c:url value='/resources/css/custom.css'/>" rel="stylesheet" type="text/css"/>
-  <link href="<c:url value='/resources/css/styles.css'/>" rel="stylesheet" type="text/css"/>
-  <link href="<c:url value='/resources/css/chatbot.css'/>" rel="stylesheet" type="text/css"/>
-  <link href="<c:url value='/resources/css/image.css'/>" rel="stylesheet" type="text/css"/>
-
   <style>
     .product-image-wrapper {
       position: relative;
@@ -36,6 +26,17 @@
 
 </head>
 <body class="d-flex flex-column min-vh-100">
+<div class="position-fixed top-0 end-0 p-3" style="z-index: 1080;">
+  <div id="cartToast" class="toast align-items-center text-bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true"
+       data-bs-autohide="true"
+       data-bs-delay="2000">
+    <div class="d-flex">
+      <div class="toast-body">
+      </div>
+      <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+    </div>
+  </div>
+</div>
 <!-- Banner -->
 <div class="banner"></div>
 <!-- Header -->
@@ -66,13 +67,8 @@
 <!-- Footer -->
 <jsp:include page="/WEB-INF/views/fragment/footer.jsp"/>
 
-<!-- Bootstrap JS Bundle -->
-<script src="${pageContext.request.contextPath}/resources/js/jquery-3.6.0.min.js"></script>
-<script src="${pageContext.request.contextPath}/resources/js/cart.js"></script>
-<script src="${pageContext.request.contextPath}/resources/js/custom.js"></script>
 
 <script>
-
   $(function(){
     const base = '${pageContext.request.contextPath}';
     function loadProducts(page = 1) {
@@ -86,12 +82,9 @@
       const p = $(this).data('page');
       if (p) loadProducts(p);
     });
-
-
     loadProducts();
-
-
   });
+
 </script>
 </body>
 </html>

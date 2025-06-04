@@ -39,9 +39,23 @@
                     <i class="bi bi-pencil-square me-1"></i> Chỉnh sửa
                 </button>
             </c:if>
-            <form:form method="post" modelAttribute="product" id="productForm"
+            <form:form method="post" modelAttribute="product" id="productForm" enctype="multipart/form-data"
                        action="${mode=='create'? '/admin/product/save' : '/admin/product/update'}">
             <form:hidden path="product_id"/>
+            <div class="mb-3">
+                <label class="form-label">Ảnh sản phẩm</label>
+                <input type="file" name="imageFile" class="form-control editable"
+                       accept="image/*" />
+                <c:if test="${not empty product.url}">
+                    <div class="mt-2">
+                        <img src="${product.url}"
+                             alt="Ảnh sản phẩm"
+                             class="img-thumbnail"
+                             style="max-height: 150px;"
+                             onerror="this.onerror=null; this.src='<c:url value='/resources/images/default.png'/>'">
+                    </div>
+                </c:if>
+            </div>
             <div class="mb-3">
                 <label class="form-label">Tên sản phẩm</label>
                 <form:input path="name" cssClass="form-control editable"
@@ -176,7 +190,7 @@
 
         function toggleEditMode(editMode) {
             editables.forEach(el => {
-                if (el.tagName === 'SELECT') {
+                if (el.tagName === 'SELECT' || el.type === 'file') {
                     // enable/disable select
                     el.disabled = !editMode;
                 } else {

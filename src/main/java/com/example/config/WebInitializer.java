@@ -22,6 +22,11 @@ public class WebInitializer extends AbstractAnnotationConfigDispatcherServletIni
 //            servletContext.log("WARNING: credentials file not found at " + real);
 //        }
 
+        // ✅ Cấu hình cookie để tránh bị mất session sau redirect tu ung dung thu 3
+        SessionCookieConfig sessionCookieConfig = servletContext.getSessionCookieConfig();
+        sessionCookieConfig.setSecure(false); // hoặc true nếu dùng HTTPS
+        sessionCookieConfig.setComment("SameSite=None");
+
         // 1) Gọi vào Spring để khởi ContextLoaderListener và DispatcherServlet
         super.onStartup(servletContext);
     }

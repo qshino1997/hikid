@@ -1,5 +1,5 @@
 /* Container popup */
-.chatbot-popup {
+.mychat-popup {
     position: fixed;
     bottom: 80px;  /* nhường chỗ nút mở */
     right: 20px;
@@ -18,14 +18,14 @@
 }
 
 /* Khi active */
-.chatbot-popup.open {
+.mychat-popup.open {
     display: flex;
     opacity: 1;
     transform: translateY(0);
 }
 
 /* Header */
-.chatbot-header {
+.mychat-header {
     background: #0d6efd;
     color: #fff;
     padding: 0.75rem 1rem;
@@ -33,12 +33,12 @@
     align-items: center;
     justify-content: space-between;
 }
-.chatbot-header h5 {
+.mychat-header h5 {
     margin: 0;
     font-size: 1rem;
     font-weight: 600;
 }
-.close-chatbot {
+.mychat-close-btn {
     background: transparent;
     border: none;
     color: #fff;
@@ -46,12 +46,12 @@
     cursor: pointer;
     transition: color 0.2s;
 }
-.close-chatbot:hover {
+.mychat-close-btn:hover {
     color: #ffc107;
 }
 
 /* Body (tin nhắn) */
-.chatbot-body {
+.mychat-body {
     flex: 1;
     padding: 1rem;
     overflow-y: auto;
@@ -59,7 +59,7 @@
 }
 
 /* Common bubble styles */
-.chatbot-body .message .bubble {
+.mychat-body .mychat-message .mychat-bubble {
     display: inline-block;
     padding: 0.5rem 0.75rem;
     border-radius: 18px;
@@ -67,13 +67,15 @@
     max-width: 80%;
     word-wrap: break-word;
     line-height: 1.4;
+    white-space: pre-wrap;     /* hoặc pre-line */
+
 }
 
 /* Tin nhắn của user */
-.chatbot-body .message.user {
+.mychat-body .mychat-message.user {
     text-align: right;
 }
-.chatbot-body .message.user .bubble {
+.mychat-body .mychat-message.user .mychat-bubble {
     background: #0d6efd;
     color: #fff;
     border-bottom-right-radius: 4px;
@@ -82,7 +84,7 @@
 }
 
 /* Tin nhắn của bot */
-.chatbot-body .message.bot .bubble {
+.mychat-body .mychat-message.bot .mychat-bubble {
     background: #ffffff;
     color: #212529;
     border-bottom-left-radius: 4px;
@@ -92,26 +94,26 @@
 }
 
 /* Footer */
-.chatbot-footer {
+.mychat-footer {
     padding: 0.75rem 1rem;
     border-top: 1px solid #dee2e6;
     display: flex;
     gap: 0.5rem;
     background: #fff;
 }
-.chatbot-footer input {
+.mychat-footer input {
     flex: 1;
     border-radius: 20px;
     border: 1px solid #ced4da;
     padding: 0.5rem 0.75rem;
     transition: border-color 0.2s;
 }
-.chatbot-footer input:focus {
+.mychat-footer input:focus {
     outline: none;
     border-color: #0d6efd;
     box-shadow: 0 0 0 0.1rem rgba(13,110,253,0.25);
 }
-.chatbot-footer button {
+.mychat-footer button {
     background: #0d6efd;
     border: none;
     border-radius: 20px;
@@ -119,6 +121,27 @@
     color: #fff;
     transition: background 0.2s;
 }
-.chatbot-footer button:hover {
+.mychat-footer button:hover {
+    background: #084298;
+}
+
+/* Nút mở chatbot */
+#open-mychatbot {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: #0d6efd;
+    color: #fff;
+    border: none;
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    font-size: 1.5rem;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    z-index: 1000;
+    transition: background 0.2s;
+}
+#open-mychatbot:hover {
     background: #084298;
 }

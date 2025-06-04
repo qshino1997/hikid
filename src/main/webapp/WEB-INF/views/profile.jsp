@@ -53,7 +53,7 @@
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Ngày sinh</label>
-                            <form:input path="date_of_birth" type="text" cssClass="form-control editable" readonly="true"/>
+                            <form:input path="date_of_birth" type="date" cssClass="form-control editable" readonly="true"/>
                             <form:errors path="date_of_birth" cssClass="text-danger"/>
                         </div>
                         <div class="mb-3">

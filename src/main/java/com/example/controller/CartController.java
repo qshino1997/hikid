@@ -1,75 +1,83 @@
 package com.example.controller;
 
+import com.example.dto.Form.OrderForm;
 import com.example.dto.ProductDto;
-import com.example.service.CartService;
+import com.example.entity.User;
+import com.example.service.Cart.CartService;
 import com.example.service.ProductService;
-import com.example.service.impl.CartServiceImpl;
+import com.example.service.UserService;
+import com.example.util.CartUtil;
+import com.example.util.SecurityUtil;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.servlet.http.HttpSession;
+import java.util.HashMap;
+import java.util.Map;
 
 @Controller
 @RequestMapping("/cart")
 public class CartController {
 
     @Autowired
+    private UserService userService;
+
+    @Autowired
     private ProductService productService;
 
-    private CartService getCart(HttpSession session) {
-        CartService cart = (CartService) session.getAttribute("CART");
-        if (cart == null) {
-            cart = new CartServiceImpl();
-            session.setAttribute("CART", cart);
-        }
-        return cart;
-    }
+    @Autowired
+    private CartUtil cartUtils;
+
+    @Autowired
+    private SecurityUtil securityUtil;
+
+    @Autowired
+    private ModelMapper modelMapper;
 
     // Thêm sản phẩm vào giỏ
-    @PostMapping("/add")
-    public String addToCart(@RequestParam("productId") Integer productId,
-                            @RequestParam("quantity") Integer quantity,
-                            @RequestParam("mode") Integer mode,
-                            @RequestParam(value = "categoryId", required = false) Integer categoryId,
-                            RedirectAttributes ra,
-                            HttpSession session) {
+    @PostMapping(value ="/add", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public Map<String, Object> addToCart(@RequestParam("productId") Integer productId,
+                                         @RequestParam("quantity") Integer quantity) {
         ProductDto p = productService.findById(productId);
         if (p != null) {
-            CartService cart = getCart(session);
-            cart.addItem(p, quantity);
-            if(mode == 1){
-                ra.addFlashAttribute("success", "Thêm giỏ hàng thành công");
-                return "redirect:/product/" + productId;
-            } else if (mode == 2){
-                ra.addFlashAttribute("success", "Thêm sản phẩm " + p.getName() +" vào giỏ hàng thành công");
-                return "redirect:/";
-            } else if (mode == 3){
-                ra.addFlashAttribute("success", "Thêm sản phẩm " + p.getName() +" vào giỏ hàng thành công");
-                return "redirect:/product/" + categoryId + "/list";
-            }
+            cartUtils.currentCart().addItem(p, quantity);
         }
-        // Chuyển về trang giỏ hàng
-        return "redirect:/cart";
+        Map<String, Object> resp = new HashMap<>();
+        resp.put("totalQuantity", cartUtils.currentCart().getTotalQuantity());
+
+        return resp;
     }
 
     // Hiển thị giỏ hàng
     @GetMapping
-    public String viewCart(HttpSession session, Model model) {
-        CartService cart = getCart(session);
-        model.addAttribute("cart", cart);
+    public String viewCart(Model model) {
+        model.addAttribute("orderForm", new OrderForm());
+
+        CartService cartService = cartUtils.currentCart();
+        if(securityUtil.getCurrentId() != null){
+            User user = userService.findById(securityUtil.getCurrentId());
+            OrderForm _orderForm = modelMapper.map(
+                    user, OrderForm.class
+            );
+            _orderForm.setEmail_v2(user.getEmail());
+            model.addAttribute("orderForm", _orderForm);
+        }
+        model.addAttribute("cart", cartService);
+
         return "cart";
     }
 
     // Cập nhật số lượng
     @PostMapping("/update")
     public String updateCart(@RequestParam("productId") Integer productId,
-                             @RequestParam("quantity") Integer quantity,
-                             HttpSession session) {
-        CartService cart = getCart(session);
-        cart.updateItem(productId, quantity);
+                             @RequestParam("quantity") Integer quantity) {
+        cartUtils.currentCart().updateItem(productId, quantity);
         return "redirect:/cart";
     }
 
@@ -77,8 +85,7 @@ public class CartController {
     @GetMapping("/remove/{productId}")
     public String removeItem(@PathVariable Integer productId,
                              HttpSession session) {
-        CartService cart = getCart(session);
-        cart.removeItem(productId);
+        cartUtils.currentCart().removeItem(productId);
         return "redirect:/cart";
     }
 }

@@ -9,16 +9,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
     <title>Trang chủ Shop</title>
-
-    <!-- CSS/JS chung -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.9.1/font/bootstrap-icons.css" rel="stylesheet"/>
-    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600&display=swap" rel="stylesheet">
-
-    <link href="<c:url value='/resources/css/custom.css'/>" rel="stylesheet" type="text/css"/>
-    <link href="<c:url value='/resources/css/styles.css'/>" rel="stylesheet" type="text/css"/>
     <link href="<c:url value='/resources/css/chatbot.css'/>" rel="stylesheet" type="text/css"/>
-    <link href="<c:url value='/resources/css/image.css'/>" rel="stylesheet" type="text/css"/>
 
 </head>
 <body class="d-flex flex-column min-vh-100">
@@ -28,7 +19,9 @@
 <div class="container-fluid flex-grow-1">
     <c:if test="${param.error != null}">
         <div class="position-fixed top-0 end-0 p-3" style="z-index: 1080;">
-            <div id="errorToast" class="toast align-items-center text-bg-danger border-0 show" role="alert" aria-live="assertive" aria-atomic="true">
+            <div id="errorToast" class="toast align-items-center text-bg-danger border-0 show" role="alert" aria-live="assertive" aria-atomic="true"
+                 data-bs-autohide="true"
+                 data-bs-delay="2000">
                 <div class="d-flex">
                     <div class="toast-body">
                         Tên đăng nhập hoặc mật khẩu không đúng!
@@ -38,9 +31,22 @@
             </div>
         </div>
     </c:if>
+    <div class="position-fixed top-0 end-0 p-3" style="z-index: 1080;">
+        <div id="cartToast" class="toast align-items-center text-bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true"
+             data-bs-autohide="true"
+             data-bs-delay="2000">
+            <div class="d-flex">
+                <div class="toast-body">
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+        </div>
+    </div>
     <c:if test="${param.logout != null}">
         <div class="position-fixed top-0 end-0 p-3" style="z-index: 1080;">
-            <div id="logoutToast" class="toast align-items-center text-bg-success border-0 show" role="alert" aria-live="assertive" aria-atomic="true">
+            <div id="logoutToast" class="toast align-items-center text-bg-success border-0 show" role="alert" aria-live="assertive" aria-atomic="true"
+                 data-bs-autohide="true"
+                 data-bs-delay="2000">
                 <div class="d-flex">
                     <div class="toast-body">
                         Bạn đã đăng xuất thành công!
@@ -95,7 +101,7 @@
                             <!-- Link & Image -->
                             <a href="${pageContext.request.contextPath}/product/${prod.product_id}"
                                class="text-decoration-none text-dark">
-                                <img src="<c:url value='/resources/images/${prod.url}'/>"
+                                <img src="${prod.url}"
                                      class="card-img-top product-image"
                                      onerror="this.onerror=null; this.src='<c:url value='/resources/images/default.png'/>'"
                                      alt="${prod.name}" />
@@ -113,15 +119,15 @@
                                     <div class="fs-5 fw-bold text-danger">
                                         <fmt:formatNumber value="${prod.price}" pattern="#,##0'đ'" />
                                     </div>
-                                    <form action="${pageContext.request.contextPath}/cart/add"
-                                          method="post" class="mb-0">
-                                        <input type="hidden" name="productId" value="${prod.product_id}" />
-                                        <input type="hidden" name="quantity" value="1" />
-                                        <input type="hidden" name="mode" value="2" />
-                                        <button type="submit" class="btn btn-sm btn-primary">
-                                            <i class="bi bi-cart-plus"></i>
-                                        </button>
-                                    </form>
+                                    <button
+                                            type="button"
+                                            class="btn btn-sm btn-primary js-add-to-cart"
+                                            data-product-id="${prod.product_id}"
+                                            data-quantity="1"
+                                            data-product-name="${prod.name}">
+                                        <i class="bi bi-cart-plus"></i>
+                                    </button>
+
                                 </div>
                             </div>
                         </div>
@@ -148,7 +154,7 @@
                             <!-- Link & Image -->
                             <a href="${pageContext.request.contextPath}/product/${prod.product_id}"
                                class="text-decoration-none text-dark">
-                                <img src="<c:url value='/resources/images/${prod.url}'/>"
+                                <img src="${prod.url}"
                                      class="card-img-top product-image"
                                      onerror="this.onerror=null; this.src='<c:url value='/resources/images/default.png'/>'"
                                      alt="${prod.name}" />
@@ -166,15 +172,14 @@
                                     <div class="fs-5 fw-bold text-danger">
                                         <fmt:formatNumber value="${prod.price}" pattern="#,##0'đ'" />
                                     </div>
-                                    <form action="${pageContext.request.contextPath}/cart/add"
-                                          method="post" class="mb-0">
-                                        <input type="hidden" name="productId" value="${prod.product_id}" />
-                                        <input type="hidden" name="quantity" value="1" />
-                                        <input type="hidden" name="mode" value="2" />
-                                        <button type="submit" class="btn btn-sm btn-primary">
-                                            <i class="bi bi-cart-plus"></i>
-                                        </button>
-                                    </form>
+                                    <button
+                                            type="button"
+                                            class="btn btn-sm btn-primary js-add-to-cart"
+                                            data-product-id="${prod.product_id}"
+                                            data-quantity="1"
+                                            data-product-name="${prod.name}">
+                                        <i class="bi bi-cart-plus"></i>
+                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -200,7 +205,7 @@
                             <!-- Link & Image -->
                             <a href="${pageContext.request.contextPath}/product/${prod.product_id}"
                                class="text-decoration-none text-dark">
-                                <img src="<c:url value='/resources/images/${prod.url}'/>"
+                                <img src="${prod.url}"
                                      class="card-img-top product-image"
                                      onerror="this.onerror=null; this.src='<c:url value='/resources/images/default.png'/>'"
                                      alt="${prod.name}" />
@@ -218,15 +223,14 @@
                                     <div class="fs-5 fw-bold text-danger">
                                         <fmt:formatNumber value="${prod.price}" pattern="#,##0'đ'" />
                                     </div>
-                                    <form action="${pageContext.request.contextPath}/cart/add"
-                                          method="post" class="mb-0">
-                                        <input type="hidden" name="productId" value="${prod.product_id}" />
-                                        <input type="hidden" name="quantity" value="1" />
-                                        <input type="hidden" name="mode" value="2" />
-                                        <button type="submit" class="btn btn-sm btn-primary">
-                                            <i class="bi bi-cart-plus"></i>
-                                        </button>
-                                    </form>
+                                    <button
+                                            type="button"
+                                            class="btn btn-sm btn-primary js-add-to-cart"
+                                            data-product-id="${prod.product_id}"
+                                            data-quantity="1"
+                                            data-product-name="${prod.name}">
+                                        <i class="bi bi-cart-plus"></i>
+                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -252,7 +256,7 @@
                             <!-- Link & Image -->
                             <a href="${pageContext.request.contextPath}/product/${prod.product_id}"
                                class="text-decoration-none text-dark">
-                                <img src="<c:url value='/resources/images/${prod.url}'/>"
+                                <img src="${prod.url}"
                                      class="card-img-top product-image"
                                      onerror="this.onerror=null; this.src='<c:url value='/resources/images/default.png'/>'"
                                      alt="${prod.name}" />
@@ -270,53 +274,61 @@
                                     <div class="fs-5 fw-bold text-danger">
                                         <fmt:formatNumber value="${prod.price}" pattern="#,##0'đ'" />
                                     </div>
-                                    <form action="${pageContext.request.contextPath}/cart/add"
-                                          method="post" class="mb-0">
-                                        <input type="hidden" name="productId" value="${prod.product_id}" />
-                                        <input type="hidden" name="quantity" value="1" />
-                                        <input type="hidden" name="mode" value="2" />
-                                        <button type="submit" class="btn btn-sm btn-primary">
-                                            <i class="bi bi-cart-plus"></i>
-                                        </button>
-                                    </form>
+                                    <button
+                                            type="button"
+                                            class="btn btn-sm btn-primary js-add-to-cart"
+                                            data-product-id="${prod.product_id}"
+                                            data-quantity="1"
+                                            data-product-name="${prod.name}">
+                                        <i class="bi bi-cart-plus"></i>
+                                    </button>
                                 </div>
                             </div>
                         </div>
                     </c:forEach>
                 </div>
             </div>
-
         </div>
     </div>
 </div>
 
 <!-- Chatbot Popup -->
-<div id="chatbot-popup" class="chatbot-popup">
-    <div class="chatbot-header">
-        <button id="chatbot-header" class="close-chatbot">X</button>
+<div id="mychatbot-popup" class="mychat-popup">
+    <div class="mychat-header">
         <h5>Chat với Chatbot</h5>
+        <button id="mychatbot-close" class="mychat-close-btn">X</button>
     </div>
-    <div id="chatbot-body" class="chatbot-body">
+    <div id="mychatbot-body" class="mychat-body">
         <!-- Tin nhắn chatbot sẽ xuất hiện ở đây -->
     </div>
-    <div class="chatbot-footer">
-        <input id="message-input" type="text" class="form-control" placeholder="Nhập câu hỏi của bạn..." />
-        <button id="send-message" class="btn btn-primary mt-2">Gửi</button>
+    <div class="mychat-footer">
+        <input id="mychat-input" type="text" placeholder="Nhập câu hỏi của bạn..." />
+        <button id="mychat-send">Gửi</button>
     </div>
 </div>
 
 <!-- Open Chatbot Button -->
-<button id="open-chatbot"
-        class="btn btn-info position-fixed bottom-0 end-0 mb-4 me-4">
+<button id="open-mychatbot" class="btn btn-info position-fixed bottom-0 end-0 mb-4 me-4">
     <i class="bi bi-chat-dots"></i>
 </button>
 <!-- FOOTER -->
 <jsp:include page="/WEB-INF/views/fragment/footer.jsp"/>
-
-<!-- JS -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="${pageContext.request.contextPath}/resources/js/chatbot.js"></script>
-<script src="${pageContext.request.contextPath}/resources/js/custom.js"></script>
-<script src="${pageContext.request.contextPath}/resources/js/jquery-3.6.0.min.js"></script>
+<!-- Khi có param showLogin → tự động bật modal -->
+<c:if test="${param.showLogin != null}">
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var loginModal = new bootstrap.Modal(document.getElementById('loginModal'));
+            loginModal.show();
+        });
+    </script>
+</c:if>
+<c:if test="${openRegisterModal == true}">
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            new bootstrap.Modal(document.getElementById('registerModal')).show();
+        });
+    </script>
+</c:if>
 </body>
 </html>

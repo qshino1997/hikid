@@ -45,13 +45,13 @@ public class Product {
 
     private Integer stock;
 
-    @OneToMany(
+    @OneToOne(
             mappedBy = "product",
             cascade = CascadeType.ALL,
             orphanRemoval = true,
             fetch = FetchType.LAZY
     )
-    private List<ProductImage> images = new ArrayList<>();
+    private ProductImage image;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id")
@@ -64,8 +64,7 @@ public class Product {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof Product)) return false;
-        Product product = (Product) o;
+        if (!(o instanceof Product product)) return false;
         return product_id != null && product_id.equals(product.product_id);
     }
 

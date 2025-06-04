@@ -34,5 +34,4 @@ public class OrderItem {
     @Column(name = "unit_price", nullable = false)
     private BigDecimal unit_price;
 
-
 }

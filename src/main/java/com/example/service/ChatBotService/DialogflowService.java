@@ -12,7 +12,11 @@ import java.util.UUID;
 @Service
 public class DialogflowService {
     private SessionsClient sessionsClient;
-    private final String projectId = "trolybanhang-fskm";
+    private SessionName sessionName;
+
+    // Tạo sessionId cố định cho toàn bộ phiên (bean) này
+    private final String sessionId = UUID.randomUUID().toString();
+
 
     @PostConstruct
     public void init() throws Exception {
@@ -30,25 +34,28 @@ public class DialogflowService {
                 .build();
         // Khởi tạo SessionsClient với Default Credentials (từ GOOGLE_APPLICATION_CREDENTIALS)
         sessionsClient = SessionsClient.create(sessionsSettings);
+        String projectId = "trolybanhang-fskm";
+        sessionName = SessionName.of(projectId, sessionId);
+
     }
+
 
     /**
      * Gửi userQuery lên Dialogflow và trả về fulfillmentText
      */
     public String getResponseFromDialogflow(String userQuery) throws Exception {
+
+
         if (userQuery == null || userQuery.isBlank()) {
             return "Mình chưa nhận được câu hỏi, bạn vui lòng nhập lại.";
         }
-
-        // Tạo sessionId độc nhất để Dialogflow gom context trong phiên đó
-        String sessionId = UUID.randomUUID().toString();
-        SessionName session = SessionName.of(projectId, sessionId);
 
         // Xây dựng input
         TextInput textInput = TextInput.newBuilder()
                 .setText(userQuery)
                 .setLanguageCode("vi-VN")
                 .build();
+
         QueryInput queryInput = QueryInput.newBuilder()
                 .setText(textInput)
                 .build();
@@ -56,12 +63,34 @@ public class DialogflowService {
         // Gửi request và nhận response
         DetectIntentResponse response = sessionsClient.detectIntent(
                 DetectIntentRequest.newBuilder()
-                        .setSession(session.toString())
+                        .setSession(sessionName.toString())
                         .setQueryInput(queryInput)
                         .build()
         );
 
         return response.getQueryResult().getFulfillmentText();
+    }
+
+    /**
+     * Thêm phương thức mới để trả về DetectIntentResponse (để lấy intentName/outputContexts).
+     */
+    public DetectIntentResponse detectIntentReturnFullResponse(String userQuery) throws Exception {
+        if (userQuery == null || userQuery.isBlank()) {
+            throw new IllegalArgumentException("userQuery không được null/blank");
+        }
+        TextInput textInput = TextInput.newBuilder()
+                .setText(userQuery)
+                .setLanguageCode("vi-VN")
+                .build();
+        QueryInput queryInput = QueryInput.newBuilder()
+                .setText(textInput)
+                .build();
+        return sessionsClient.detectIntent(
+                DetectIntentRequest.newBuilder()
+                        .setSession(sessionName.toString())
+                        .setQueryInput(queryInput)
+                        .build()
+        );
     }
 
 }

@@ -29,6 +29,7 @@ public class UserProfile {
     private User user;
 
     @Column(name = "date_of_birth")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate date_of_birth;
 
     @Column(length = 20)

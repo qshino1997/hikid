@@ -63,11 +63,6 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public Integer findPriceByBrandAndAgeRange(String brand, String ageRange) {
-        return productDAO.findPriceByBrandAndAgeRange(brand,ageRange);
-    }
-
-    @Override
     public List<ProductDto> getAllProducts(int page, int size, String keyword) {
         return productDAO.findByKeyword(page, size, keyword);
     }

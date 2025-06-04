@@ -11,4 +11,9 @@ import lombok.Setter;
 @NoArgsConstructor
 public class ChatResponse {
     private String response;
+    private Integer qty;
+
+    public ChatResponse(String response){
+        this.response = response;
+    }
 }
