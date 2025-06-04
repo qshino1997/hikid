@@ -24,10 +24,7 @@ import java.util.Properties;
 @Configuration
 @ComponentScan(basePackages = "com.example")
 @EnableTransactionManagement
-@PropertySource({
-        "classpath:database.properties",
-        "classpath:paypal.properties"
-})
+@PropertySource({"classpath:database.properties"})
 public class AppConfig extends WebMvcConfigurerAdapter {
 
     @Bean
