@@ -26,10 +26,10 @@ public class PayPalConfig {
 
     @PostConstruct
     public void init() {
-        mode       = env.getProperty("paypal.mode");
-        clientId       = env.getProperty("paypal.clientId");
-        clientSecret          = env.getProperty("paypal.clientSecret");
-        webhookId          = env.getProperty("paypal.webhookId");
+        mode       = env.getProperty("PAYPAL_MODE");
+        clientId       = env.getProperty("PAYPAL_CLIENTID");
+        clientSecret          = env.getProperty("PAYPAL_CLIENTSECRET");
+        webhookId          = env.getProperty("PAYPAL_WEBHOOKID");
     }
 
     @Bean
