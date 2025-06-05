@@ -22,10 +22,6 @@
         </button>
 
         <div class="collapse navbar-collapse" id="mainNav">
-            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                <li class="nav-item"><a class="nav-link" href="#">Giới thiệu</a></li>
-            </ul>
-
             <form id="searchForm"
                   class="d-flex flex-grow-1 mx-3"
                   action="${pageContext.request.contextPath}/product/searchList"

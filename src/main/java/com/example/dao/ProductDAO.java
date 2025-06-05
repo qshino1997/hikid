@@ -4,6 +4,7 @@ import com.example.dto.ProductDto;
 import com.example.entity.Product;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface ProductDAO {
     List<ProductDto> findAllByCatoryId(int categoryId, int page, int size);
@@ -18,5 +19,5 @@ public interface ProductDAO {
     List<ProductDto> getMaxProducesBySix(int categoryId);
     long countByCategoryId(int categoryId);
     long countByCategory0AndKeyword(String keyword);
-
+    List<ProductDto> findByCategoryId(int categoryId);
 }

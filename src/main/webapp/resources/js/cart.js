@@ -7,7 +7,20 @@ document.addEventListener('click', function (e) {
     if (!btn) return;
 
     const pid = btn.dataset.productId;
-    const qty = btn.dataset.quantity || 1;
+    let qty = 1;
+    const qtyInput = document.querySelector('.js-quantity');
+    if (qtyInput) {
+        // parseInt để đảm bảo lấy số, nếu bị nhập chữ thì sẽ trả NaN → fallback về 1
+        const parsed = parseInt(qtyInput.value, 10);
+        qty = (!isNaN(parsed) && parsed > 0) ? parsed : 1;
+
+        // Ngăn không cho nhập vượt qua kho
+        const maxStock = parseInt(qtyInput.dataset.max, 10) || parsed;
+        if (qty > maxStock) {
+            qty = maxStock;
+            qtyInput.value = maxStock;
+        }
+    }
     const mode = btn.dataset.mode || 2;  // mode mặc định là 2
     const productName = btn.dataset.productName || 'Sản phẩm';
 

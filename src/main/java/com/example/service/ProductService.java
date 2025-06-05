@@ -18,5 +18,6 @@ public interface ProductService {
     ProductDto findById(int id);
     List<ProductDto> getMaxProducesBySix(int categoryId);
     long countByCategoryId(int categoryId);
+    List<ProductDto> findByCategory(int categoryId);
 
 }

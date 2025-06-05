@@ -56,6 +56,24 @@ public class ProductServiceImpl implements ProductService {
         return total;
     }
 
+    @Override
+    public List<ProductDto> findByCategory(int categoryId) {
+        // 1. Lấy category
+        Category category = categoryDAO.findById(categoryId);
+
+        // 2. Lấy luôn cả product của chính nó + của các subCategories (level 1)
+        return Stream.concat(
+                        // stream sản phẩm của chính category
+                        productDAO.findByCategoryId(categoryId).stream(),
+                        // stream sản phẩm của từng subCategory (nếu có)
+                        Optional.ofNullable(category.getSubCategories())
+                                .orElse(Collections.emptyList())
+                                .stream()
+                                .flatMap(sub -> productDAO.findByCategoryId(sub.getId()).stream())
+                )
+                .collect(Collectors.toList());
+    }
+
 
     @Override
     public Product getProductById(int id){

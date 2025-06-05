@@ -2,6 +2,7 @@ package com.example.controller;
 
 import com.example.dto.ProductDto;
 import com.example.entity.Category;
+import com.example.entity.Product;
 import com.example.service.CategoryService;
 import com.example.service.ProductService;
 import lombok.RequiredArgsConstructor;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
+import java.util.Objects;
 
 @Controller
 @RequiredArgsConstructor
@@ -88,7 +90,15 @@ public class ProductController {
     @GetMapping("/{id}")
     public String getProduct(@PathVariable("id") int id, Model model){
         ProductDto product = productService.findById(id);
+
+        int categoryId = product.getCategory_id();
+        List<ProductDto> similarProducts = productService.findByCategory(categoryId);
+        similarProducts.removeIf(p -> Objects.equals(p.getProduct_id(), product.getProduct_id()));
+
         model.addAttribute("product", product);
+        model.addAttribute("similarProducts", similarProducts);
+
+
         return "product-detail";
     }
 }

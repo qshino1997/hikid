@@ -1,0 +1,86 @@
+.similar-products-container {
+    position: relative;
+    width: 100%;
+}
+
+/* Track chứa flex, gap giữa các card là 1rem */
+.similar-products-track {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: nowrap;
+    overflow-x: hidden;
+    scroll-behavior: smooth;
+    padding-left: 3px;
+}
+
+/* Mỗi card chiếm 1/5*100% trừ tổng gap */
+.similar-card {
+    /* 5 cards: mỗi card chiếm (100% - 4*1rem)/5 */
+    flex: 0 0 calc((100% - 4rem) / 5);
+    box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+    border-radius: 4px;
+    background-color: #fff;
+
+    /* Ẩn phần ảnh vượt khung khi zoom */
+    overflow: hidden;
+
+    /* Bắt buộc reset mọi transform trên chính card (phòng khi Bootstrap gán) */
+    transform: none !important;
+}
+
+/* Phá mọi transform nếu Bootstrap hay CSS khác cố gắng scale .similar-card:hover */
+.similar-card:hover {
+    transform: none !important;
+}
+
+.similar-card img {
+    display: block;                /* tránh khoảng trắng dưới ảnh */
+    width: 100%;
+    height: 150px;
+    object-fit: contain;
+    border-bottom: none;
+    /* Chỉ animate transform của ảnh */
+    transition: transform 0.3s ease;
+    transform: none !important;    /* reset mọi transform cũ nếu có */
+}
+
+/* Khi hover chính xác lên <img> mới scale */
+.similar-card img:hover {
+    transform: scale(1.1) !important;
+    transform-origin: top center;
+}
+
+/* Các phần khác (card-body, title, price) không zoom */
+.similar-card .card-body,
+.similar-card .card-title,
+.similar-card .card-price {
+    transform: none !important;
+}
+
+.similar-card .card-body {
+    padding: 0.75rem 0.5rem 0.5rem;
+    text-align: center;
+}
+
+.similar-card .card-title {
+    font-size: 0.9rem;
+    margin-bottom: 0.25rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+
+    font-weight: 600;
+}
+
+.similar-card .card-price {
+    font-size: 0.9rem;
+    color: #d9534f; /* đỏ nhạt giống text-danger */
+}
+
+.similar-card a {
+    text-decoration: none;
+    color: inherit;
+}
+.similar-card a:hover {
+    color: #007bff;
+}

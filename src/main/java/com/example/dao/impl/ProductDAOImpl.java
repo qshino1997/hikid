@@ -179,6 +179,31 @@ public class ProductDAOImpl extends BaseDAO implements ProductDAO {
     }
 
     @Override
+    public List<ProductDto> findByCategoryId(int categoryId) {
+        String hql = "SELECT new com.example.dto.ProductDto(" +
+                "p.product_id, " +
+                "p.name, " +
+                "p.product_weight, " +
+                "p.price, " +
+                "p.made_in, " +
+                "p.appropriate_age_start, " +
+                "p.appropriate_age_end, " +
+                "p.warning, " +
+                "p.instructions, " +
+                "p.storage_instructions, " +
+                "p.stock, " +
+                "p.category.id, " +
+                "p.category.name, " +
+                "p.manufacturer.id, " +
+                "p.manufacturer.name, " +
+                "i.url) " +
+                "FROM Product p " +
+                "LEFT JOIN p.image i " +
+                "WHERE p.category.id = :categoryId ";
+        return currentSession().createQuery(hql, ProductDto.class).setParameter("categoryId", categoryId).getResultList();
+    }
+
+    @Override
     public void save(Product product) {
         currentSession().saveOrUpdate(product);
     }
@@ -193,29 +218,27 @@ public class ProductDAOImpl extends BaseDAO implements ProductDAO {
 
     @Override
     public ProductDto getById(int id) {
-// 1) Build HQL với 2 fetch-join
-        StringBuilder hql = new StringBuilder();
-        hql.append("SELECT new com.example.dto.ProductDto(" +
-                        "p.product_id, " +
-                        "p.name, " +
-                        "p.product_weight, " +
-                        "p.price, " +
-                        "p.made_in, " +
-                        "p.appropriate_age_start, " +
-                        "p.appropriate_age_end, " +
-                        "p.warning, " +
-                        "p.instructions, " +
-                        "p.storage_instructions, " +
-                        "p.stock, " +
-                        "p.category.id, " +
-                        "p.category.name, " +
-                        "p.manufacturer.id, " +
-                        "p.manufacturer.name, " +
-                        "i.url) ")
-                .append("FROM Product p ")
-                .append("LEFT JOIN p.image i ")
-                .append("WHERE p.product_id = :id ");
-    return currentSession().createQuery(hql.toString(), ProductDto.class).setParameter("id", id).uniqueResult();
+        String hql = "SELECT new com.example.dto.ProductDto(" +
+                "p.product_id, " +
+                "p.name, " +
+                "p.product_weight, " +
+                "p.price, " +
+                "p.made_in, " +
+                "p.appropriate_age_start, " +
+                "p.appropriate_age_end, " +
+                "p.warning, " +
+                "p.instructions, " +
+                "p.storage_instructions, " +
+                "p.stock, " +
+                "p.category.id, " +
+                "p.category.name, " +
+                "p.manufacturer.id, " +
+                "p.manufacturer.name, " +
+                "i.url) " +
+                "FROM Product p " +
+                "LEFT JOIN p.image i " +
+                "WHERE p.product_id = :id ";
+    return currentSession().createQuery(hql, ProductDto.class).setParameter("id", id).uniqueResult();
     }
 
     @Override
