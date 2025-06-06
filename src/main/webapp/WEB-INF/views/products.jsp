@@ -37,8 +37,6 @@
     </div>
   </div>
 </div>
-<!-- Banner -->
-<div class="banner"></div>
 <!-- Header -->
 <jsp:include page="/WEB-INF/views/fragment/header.jsp"/>
 <!-- Content -->

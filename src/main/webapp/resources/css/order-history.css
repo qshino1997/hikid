@@ -1,0 +1,28 @@
+.star-rating {
+    unicode-bidi: bidi-override;
+    direction: rtl;
+    font-size: 1.5rem;    /* Kích thước icon sao */
+    display: inline-block;
+}
+.star-rating input {
+    position: absolute;
+    left: -9999px;         /* Ẩn radio thật */
+}
+.star-rating label {
+    color: #ccc;           /* Màu bậc mặc định */
+    cursor: pointer;
+    display: inline-block;
+    margin: 0;
+    padding: 0;
+}
+.star-rating input:checked ~ label,
+.star-rating label:hover,
+.star-rating label:hover ~ label {
+    color: #ffc107;        /* Màu vàng khi hover/checked */
+}
+.star-rating input:focus ~ label {
+    outline: 1px solid #333;
+}
+.star-rating label {
+    margin-right: 0.2rem;  /* Khoảng cách giữa các sao */
+}

@@ -53,7 +53,7 @@ public class OrderServiceImpl implements OrderService {
         order.setStatus("PENDING_PAYMENT");
 
         Collection<CartItemDto> getItems = cartService.getItems();
-        List<OrderItem> orderItemList = new ArrayList<>();
+        Set<OrderItem> orderItemList = new HashSet<>();
         // Tạo các OrderItem từ cartService.getItems()
         getItems.forEach(cartItemDto -> {
             OrderItem oi = new OrderItem();
@@ -95,10 +95,10 @@ public class OrderServiceImpl implements OrderService {
                 .setInvoiceNumber(order.getOrder_id().toString());
 
         RedirectUrls urls = new RedirectUrls()
-                .setCancelUrl("https://hikid.onrender.com/cart")
-                .setReturnUrl("https://hikid.onrender.com/order/success");
-//                .setCancelUrl("https://be21-2405-4802-a3d6-0-65a8-24b-27b4-22e7.ngrok-free.app/order/cancel")
-//                .setReturnUrl("https://be21-2405-4802-a3d6-0-65a8-24b-27b4-22e7.ngrok-free.app/order/success");
+//                .setCancelUrl("https://hikid.onrender.com/cart")
+//                .setReturnUrl("https://hikid.onrender.com/order/success");
+                .setCancelUrl("https://4996-2405-4802-a3d6-0-c5ec-e0c-a5cd-cd78.ngrok-free.app/order/cancel")
+                .setReturnUrl("https://4996-2405-4802-a3d6-0-c5ec-e0c-a5cd-cd78.ngrok-free.app/order/success");
         Payment payment = new Payment()
                 .setIntent("sale")
                 .setPayer(payer)

@@ -146,7 +146,7 @@
                                         <div class="d-flex justify-content-center align-items-center">
                                             <input type="number" name="quantity"
                                                    value="${item.quantity}" min="1"
-                                                   class="form-control form-control-sm text-center"
+                                                   class="form-control form-control-sm text-center cart-qty-input"
                                                    style="width: 60px;"/>
                                             <input type="hidden" name="productId"
                                                    value="${item.product.product_id}"/>
@@ -154,7 +154,7 @@
                                     </td>
 
                                     <!-- Thành tiền -->
-                                    <td class="text-center text-success fw-bold">
+                                    <td class="text-center text-success fw-bold subtotal-cell">
                                         <fmt:formatNumber value="${item.subTotal}" pattern="#,##0'₫'"/>
                                     </td>
 
@@ -175,15 +175,10 @@
                     <div class="row mt-4">
                         <div class="col-md-6 d-flex align-items-center">
                             <span class="cart-summary">Tổng cộng:
-                                <span class="text-danger">
+                                <span class="text-danger total-cell">
                                     <fmt:formatNumber value="${cart.total}" pattern="#,##0'₫'"/>
                                 </span>
                             </span>
-                        </div>
-                        <div class="col-md-6 text-end">
-                            <button type="submit" class="btn btn-primary me-3 btn-update">
-                                <i class="bi bi-arrow-clockwise"></i> Cập nhật giỏ hàng
-                            </button>
                         </div>
                     </div>
                 </form>
@@ -193,10 +188,48 @@
 </div>
 <jsp:include page="/WEB-INF/views/fragment/footer.jsp"/>
 <script>
+    window.UPDATE_TO_CART_URL = '${pageContext.request.contextPath}/cart/update';
+
     document.addEventListener("DOMContentLoaded", function () {
         var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
         tooltipTriggerList.forEach(function (tooltipTriggerEl) {
             new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+
+        $(document).on('change', '.cart-qty-input', function() {
+            const $input = $(this);
+            let quantity = parseInt($input.val(), 10);
+            if (isNaN(quantity) || quantity < 1) {
+                quantity = 1; // mặc định 1 nếu người dùng nhập thất thường
+                $input.val(1);
+            }
+
+            // Lấy productId từ data-attribute của <tr>
+            const $tr = $input.closest('tr');
+            const productIdString = $tr.find("input[name='productId']").val();
+            const productId = parseInt(productIdString, 10); // ép về số
+
+            // Gửi AJAX cập nhật
+            $.ajax({
+                url: window.UPDATE_TO_CART_URL,
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    productId: productId,
+                    quantity: quantity
+                }),
+                success: function(response) {
+                    const cartCountEl = document.getElementById('cart-count');
+                    if (cartCountEl) cartCountEl.textContent = response.totalQuantity;
+                    $tr.find('.subtotal-cell')
+                        .text(response.newSubtotal.toLocaleString('vi-VN') + '₫');
+                    $('.total-cell').text(response.totalCell.toLocaleString('vi-VN') + '₫');
+                },
+                error: function(xhr, status, error) {
+                    console.error("Lỗi AJAX:", error);
+                    alert("Đã xảy ra lỗi khi cập nhật giỏ hàng.");
+                }
+            });
         });
     });
 </script>

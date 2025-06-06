@@ -1,6 +1,8 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
+
 <fmt:setLocale value="vi_VN" />
 
 <!DOCTYPE html>
@@ -206,7 +208,79 @@
             </table>
         </div>
     </div>
+    <div class="row p-2 bg-light"></div>
+    <div class="row p-4 section-white mt-4">
+        <!-- Tiêu đề + Tổng quan -->
+        <div class="col-12 mb-3">
+            <h3>Đánh giá sản phẩm</h3>
+        </div>
 
+        <div class="col-12 d-flex align-items-center mb-4">
+            <!-- Hiển thị điểm trung bình -->
+            <div class="me-4 text-center">
+                <h1 class="display-4 text-warning" style="font-size: 2.5rem; margin-bottom: 0;">
+                    <fmt:formatNumber value="${averageRating}" type="number" minFractionDigits="1" maxFractionDigits="1"/>
+                </h1>
+                <p class="mb-0">trên 5</p>
+                <div>
+                    <!-- Hiển thị sao vàng tương ứng với phần nguyên của averageRating -->
+                    <c:forEach begin="1" end="5" var="i">
+                        <c:choose>
+                            <c:when test="${i <= fullStars}">
+                                <i class="bi bi-star-fill text-warning" style="font-size: 1.2rem;"></i>
+                            </c:when>
+                            <c:otherwise>
+                                <i class="bi bi-star text-secondary" style="font-size: 1.2rem;"></i>
+                            </c:otherwise>
+                        </c:choose>
+                    </c:forEach>
+                </div>
+            </div>
+            <!-- Tổng số lượt đánh giá -->
+            <div>
+                <h5 class="fw-bold">${totalReviews} đánh giá</h5>
+            </div>
+        </div>
+
+        <!-- Danh sách tất cả review -->
+        <div class="col-12 mb-4">
+            <c:if test="${empty commentsList}">
+                <div class="alert alert-secondary">
+                    Chưa có đánh giá nào cho sản phẩm này.
+                </div>
+            </c:if>
+            <c:if test="${not empty commentsList}">
+                <div class="list-group">
+                    <c:forEach items="${commentsList}" var="cmt" varStatus="status">
+                        <div class="list-group-item mb-3">
+                            <div class="d-flex align-items-center mb-2">
+                                <div>
+                                    <h6 class="mb-0">${cmt.user.username}</h6>
+                                    <span class="text-muted">
+                                            ${cmt.createdAtFormatted}
+                                    </span>
+                                </div>
+                            </div>
+                            <!-- Rating sao -->
+                            <div class="mb-2">
+                                <c:forEach begin="1" end="5" var="i">
+                                    <c:choose>
+                                        <c:when test="${i <= cmt.rating}">
+                                            <i class="bi bi-star-fill text-warning"></i>
+                                        </c:when>
+                                        <c:otherwise>
+                                            <i class="bi bi-star text-secondary"></i>
+                                        </c:otherwise>
+                                    </c:choose>
+                                </c:forEach>
+                            </div>
+                            <!-- Nội dung đánh giá -->
+                            <p class="mb-2">${cmt.content}</p>
+                        </div>
+                    </c:forEach>
+                </div>
+            </c:if>
+        </div>
 </div>
 
 <!-- Footer -->

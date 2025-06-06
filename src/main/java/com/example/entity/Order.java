@@ -14,6 +14,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "orders")
@@ -37,7 +38,8 @@ public class Order {
     private String status;  // NEW, PENDING_PAYMENT, PAID, FAILED…
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<OrderItem> items;
+    @OrderBy("order_item_id ASC")
+    private Set<OrderItem> items;
 
     @CreationTimestamp
     @DateTimeFormat(pattern="dd/MM/yyyy")
@@ -64,7 +66,7 @@ public class Order {
     private LocalDateTime createdAtFormatted;
 
     public String getCreatedAtFormatted() {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
         return created_at.format(formatter);
     }
 }

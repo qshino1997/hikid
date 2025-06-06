@@ -12,7 +12,7 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.9.1/font/bootstrap-icons.css" rel="stylesheet" />
   <style>
     body { font-family: 'Quicksand', sans-serif; }
-    .sidebar { height: 100vh; background-color: #343a40; }
+    .sidebar { background-color: #343a40; }
     .sidebar .nav-link { color: #adb5bd; }
     .sidebar .nav-link.active, .sidebar .nav-link:hover { color: #fff; background-color: #495057; }
     .content-area { padding: 2rem; }

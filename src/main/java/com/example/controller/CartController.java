@@ -2,6 +2,7 @@ package com.example.controller;
 
 import com.example.dto.Form.OrderForm;
 import com.example.dto.ProductDto;
+import com.example.entity.Product;
 import com.example.entity.User;
 import com.example.service.Cart.CartService;
 import com.example.service.ProductService;
@@ -16,6 +17,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpSession;
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -75,10 +77,32 @@ public class CartController {
 
     // Cập nhật số lượng
     @PostMapping("/update")
-    public String updateCart(@RequestParam("productId") Integer productId,
-                             @RequestParam("quantity") Integer quantity) {
+    @ResponseBody
+    public Map<String, Object> updateCart(@RequestBody Map<String, Integer> payload) {
+        Map<String, Object> result = new HashMap<>();
+        Integer productId = payload.get("productId");
+        Integer quantity = payload.get("quantity");
+
+        if (productId == null || quantity == null || quantity < 1) {
+            result.put("success", false);
+            result.put("message", "Dữ liệu sản phẩm không hợp lệ.");
+            return result;
+        }
+
         cartUtils.currentCart().updateItem(productId, quantity);
-        return "redirect:/cart";
+        Integer totalQuantity = cartUtils.currentCart().getTotalQuantity();
+        Long total = cartUtils.currentCart().getTotal();
+        Product product = productService.getProductById(productId);
+        BigDecimal unitPrice = BigDecimal.valueOf(product.getPrice());
+
+        BigDecimal newSubtotal = unitPrice.multiply(BigDecimal.valueOf(quantity));
+
+        result.put("newSubtotal", newSubtotal);
+        result.put("success", true);
+        result.put("totalQuantity", totalQuantity);
+        result.put("totalCell", total);
+        return result;
+
     }
 
     // Xóa 1 item

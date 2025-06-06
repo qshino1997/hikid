@@ -3,7 +3,9 @@ package com.example.controller;
 import com.example.dto.ProductDto;
 import com.example.entity.Category;
 import com.example.entity.Product;
+import com.example.entity.ProductReview;
 import com.example.service.CategoryService;
+import com.example.service.ProductReviewService;
 import com.example.service.ProductService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
@@ -22,6 +24,7 @@ import java.util.Objects;
 public class ProductController {
     private final ProductService productService;
     private final CategoryService categoryService;
+    private final ProductReviewService productReviewService;
 
     @GetMapping("/{categoryId}/list")
     public String getAllProduct(@PathVariable("categoryId") int categoryId,
@@ -94,11 +97,20 @@ public class ProductController {
         int categoryId = product.getCategory_id();
         List<ProductDto> similarProducts = productService.findByCategory(categoryId);
         similarProducts.removeIf(p -> Objects.equals(p.getProduct_id(), product.getProduct_id()));
+        List<ProductReview> productReviews = productReviewService.findByProductId(id);
 
+        double avg = 0;
+        if (!productReviews.isEmpty()) {
+            avg = productReviews.stream().mapToInt(ProductReview::getRating).average().orElse(0.0);
+        }
+        int fullStars = (int) Math.floor(avg);
+        model.addAttribute("averageRating", avg);
+        // Tổng số review
+        model.addAttribute("fullStars", fullStars);
+        model.addAttribute("totalReviews", productReviewService.countByProductId(id));
+        model.addAttribute("commentsList", productReviews);
         model.addAttribute("product", product);
         model.addAttribute("similarProducts", similarProducts);
-
-
         return "product-detail";
     }
 }

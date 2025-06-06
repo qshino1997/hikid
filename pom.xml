@@ -8,11 +8,11 @@
   <packaging>war</packaging>
 
   <dependencies>
-    <!-- https://mvnrepository.com/artifact/com.google.auth/google-auth-library-oauth2-http -->
+    <!-- Google Auth library để sử dụng GoogleCredentials -->
     <dependency>
       <groupId>com.google.auth</groupId>
       <artifactId>google-auth-library-oauth2-http</artifactId>
-      <version>1.33.1</version>
+      <version>1.35.0</version>
     </dependency>
 
     <dependency>
@@ -27,11 +27,43 @@
       <version>2.63.1</version>
     </dependency>
 
-    <!-- Google Auth library để sử dụng GoogleCredentials -->
+    <!-- https://mvnrepository.com/artifact/com.google.auth/google-auth-library-oauth2-http -->
     <dependency>
-      <groupId>com.google.auth</groupId>
-      <artifactId>google-auth-library-oauth2-http</artifactId>
-      <version>1.35.0</version>
+      <groupId>org.springframework.security</groupId>
+      <artifactId>spring-security-core</artifactId>
+      <version>5.8.5</version>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.security</groupId>
+      <artifactId>spring-security-oauth2-client</artifactId>
+      <version>5.8.5</version>
+      <exclusions>
+        <exclusion>
+          <groupId>com.google.protobuf</groupId>
+          <artifactId>protobuf-java-util</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.security</groupId>
+      <artifactId>spring-security-oauth2-jose</artifactId>
+      <version>5.8.5</version>
+      <exclusions>
+        <exclusion>
+          <groupId>com.google.protobuf</groupId>
+          <artifactId>protobuf-java-util</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>io.jsonwebtoken</groupId>
+      <artifactId>jjwt</artifactId>
+      <version>0.9.1</version>
+    </dependency>
+    <dependency>
+      <groupId>com.auth0</groupId>
+      <artifactId>java-jwt</artifactId>
+      <version>3.18.2</version>
     </dependency>
 
     <dependency>
@@ -189,6 +221,12 @@
       <groupId>commons-io</groupId>
       <artifactId>commons-io</artifactId>
       <version>2.14.0</version>
+    </dependency>
+
+    <dependency>
+      <groupId>log4j</groupId>
+      <artifactId>log4j</artifactId>
+      <version>1.2.17</version>
     </dependency>
 
   </dependencies>

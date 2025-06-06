@@ -55,6 +55,11 @@
                             <i class="bi bi-pencil-square"></i> Đăng ký
                         </button>
                     </li>
+                    <li class="nav-item ms-2">
+                        <a href="<c:url value='/oauth2/authorization/google'/>" class="btn btn-danger">
+                            <i class="bi bi-google"></i> Đăng nhập với Google
+                        </a>
+                    </li>
                 </sec:authorize>
 
                 <sec:authorize access="isAuthenticated()">
@@ -145,7 +150,6 @@
                 </div>
             </form:form>
             <div class="text-center my-3">
-                <p>Hoặc</p>
                 <a href="<c:url value='/oauth2/authorization/google'/>" class="btn btn-danger">
                     <i class="bi bi-google"></i> Đăng nhập với Google
                 </a>

@@ -147,7 +147,7 @@ public class OrderDaoImpl extends BaseDAO implements OrderDao {
                 "LEFT JOIN FETCH i.product p " +
                 "LEFT JOIN FETCH p.image img " +
                 "WHERE o.user_id = :uid " +
-                "AND o.status != 'CANCELED'" +
+                "AND o.status != 'CANCELED' " +
                 "ORDER BY o.created_at DESC";
         return currentSession().createQuery(hql,Order.class).setParameter("uid", userId).getResultList();
     }

@@ -70,6 +70,7 @@ public class AdminProductController {
     public String saveProduct(
             @Valid @ModelAttribute("product") ProductDto productDto,
             BindingResult br,
+            @RequestParam("imageFile") MultipartFile imageFile,
             Model model,
             RedirectAttributes ra) {
 
@@ -82,13 +83,40 @@ public class AdminProductController {
         }
 
         Product product = modelMapper.map(productDto, Product.class);
-        Category category = categoryService.findById(productDto.getCategory_id());
-        Manufacturer manufacturer = manufacturerService.findById(productDto.getManufacturer_id());
+        try{
+            Category category = categoryService.findById(productDto.getCategory_id());
+            Manufacturer manufacturer = manufacturerService.findById(productDto.getManufacturer_id());
 
-        product.setCategory(category);
-        product.setManufacturer(manufacturer);
+            product.setCategory(category);
+            product.setManufacturer(manufacturer);
 
-        productService.saveOrUpdate(product);
+            ProductImage productImage = new ProductImage();
+
+            // Xử lý upload ảnh mới nếu có
+            if (imageFile != null && !imageFile.isEmpty()) {
+                String fileName = UUID.randomUUID() + "_" + imageFile.getOriginalFilename();
+                String pathInRepo = "product-images/" + fileName;
+                String commitMessage = "Update product image: " + fileName;
+
+                byte[] content = imageFile.getBytes();
+                String imageUrl = gitHubService.uploadFile(pathInRepo, content, commitMessage);
+
+                productImage.setUrl(imageUrl);
+                productImage.setProduct(product);
+                productImage.setIs_primary(true);
+
+                // Cập nhật URL mới vào DTO (để lưu vào entity)
+            }
+
+            product.setImage(productImage);
+
+            productService.saveOrUpdate(product);
+        } catch (Exception e){
+            ra.addFlashAttribute("failed", "Lỗi khi them moi sản phẩm");
+            System.out.println(e.getMessage());
+            return "redirect:/admin/product";
+        }
+
 
         ra.addFlashAttribute("success", "Tạo sản phẩm thành công!");
         return "redirect:/admin/product";
@@ -184,6 +212,8 @@ public class AdminProductController {
                     productImage.setProduct(product);
                     productImage.setIs_primary(true);
                     productImage.setUrl(dto.getUrl());
+                    productImage.setProduct(product);
+                    product.setImage(productImage);
                 }
             }
             // Cập nhật quan hệ Category và Manufacturer
