@@ -25,7 +25,7 @@ public class OAuth2ClientConfig {
     public ClientRegistration googleClientRegistration() {
         String CLIENT_ID = env.getProperty("GOOGLE_LOGIN_CLIENT_ID");
         String CLIENT_SECRET = env.getProperty("GOOGLE_LOGIN_CLIENT_SECRET");
-        String REDIRECT_URL = "https://aa9d-2405-4802-a31f-f80-1d55-879-53bc-f8b2.ngrok-free.app/login/oauth2/code/{registrationId}";
+        String REDIRECT_URL = "{baseUrl}/login/oauth2/code/{registrationId}";
         return ClientRegistration.withRegistrationId("google")
                 .clientId(CLIENT_ID)
                 .clientSecret(CLIENT_SECRET)
