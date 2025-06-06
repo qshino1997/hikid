@@ -50,4 +50,7 @@ public class User {
     @Column(name = "updated_at")
     private String updated_at;
 
+    @Column(name = "auth_provider")
+    private String auth_provider;
+
 }

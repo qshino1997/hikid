@@ -1,5 +1,6 @@
 package com.example.config.Auth;
 
+import com.example.config.Auth.Google.CustomOAuth2UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -13,25 +14,30 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+// OAuth2 imports
+import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
+import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
+
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
 
-    // Bỏ qua static resources
+    // ==== 0) Bỏ qua static resources (CSS/JS/Images) toàn cục ====
     @Bean
     public WebSecurityCustomizer webSecurityCustomizer() {
         return web -> web.ignoring()
                 .antMatchers("/resources/**", "/css/**", "/js/**", "/images/**");
     }
 
+    // ==== 0.b) BCryptPasswordEncoder dùng chung ====
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
-    //====================================================
-    // 1) Admin security – chạy trước (Order = 1)
-    //====================================================
+    // ============================
+    // 1) ADMIN SECURITY (Order = 1)
+    // ============================
     @Configuration
     @Order(1)
     public static class AdminSecurityConfig extends WebSecurityConfigurerAdapter {
@@ -40,34 +46,34 @@ public class SecurityConfig {
         private CustomUserDetailsService userDetailsService;
 
         @Autowired
-        private PasswordEncoder _passwordEncoder;
+        private PasswordEncoder passwordEncoder;
 
         @Override
         protected void configure(HttpSecurity http) throws Exception {
             http
-                    // Chỉ apply cho URL bắt đầu /admin/**
+                    // Chỉ apply cho mọi URL bắt đầu /admin/
                     .requestMatcher(request -> request.getRequestURI().startsWith("/admin/"))
                     .authorizeRequests()
-                    .antMatchers("/","/admin/login").permitAll()
-                    .anyRequest().hasAnyRole("ADMIN","MANAGER")
-                    // Chỉ admin mới vào /admin/**
-//                    .antMatchers("/admin/**").hasRole("ADMIN")
-//                    .anyRequest().authenticated()
+                    .antMatchers("/admin/login").permitAll()
+                    .anyRequest().hasAnyRole("ADMIN", "MANAGER")
                     .and()
+                    // Form‐login admin
                     .formLogin()
-                    .loginPage("/admin/login")          // GET trang login admin
-                    .loginProcessingUrl("/admin/login")   // POST form login
-                    .usernameParameter("email")          // đọc trường email
-                    .passwordParameter("password")       // đọc trường password
-                    .successHandler(new LoginSuccessHandler())   // <–– dùng handler custom
+                    .loginPage("/admin/login")          // GET hiển thị form
+                    .loginProcessingUrl("/admin/login") // POST xử lý login
+                    .usernameParameter("email")
+                    .passwordParameter("password")
+                    .successHandler(new LoginSuccessHandler())
                     .failureUrl("/admin/login?error")
                     .permitAll()
                     .and()
+                    // Logout admin
                     .logout()
                     .logoutUrl("/admin/logout")
                     .logoutSuccessUrl("/admin/login?logout")
                     .permitAll()
                     .and()
+                    // 403 Admin
                     .exceptionHandling()
                     .accessDeniedPage("/403")
                     .and()
@@ -77,70 +83,96 @@ public class SecurityConfig {
         @Override
         protected void configure(AuthenticationManagerBuilder auth) throws Exception {
             auth.userDetailsService(userDetailsService)
-                    .passwordEncoder(_passwordEncoder);  // Sử dụng PasswordEncoder
+                    .passwordEncoder(passwordEncoder);
         }
     }
 
-    //====================================================
-    // 2) User security – chạy sau (Order = 2)
-    //====================================================
+    // ============================
+    // 2) USER SECURITY (Order = 2)
+    // ============================
     @Configuration
     @Order(2)
     public static class UserSecurityConfig extends WebSecurityConfigurerAdapter {
+
         @Autowired
         private CustomUserDetailsService userDetailsService;
 
         @Autowired
-        private PasswordEncoder _passwordEncoder;
+        private PasswordEncoder passwordEncoder;
 
         @Autowired
         private UserLoginSuccessHandler userLoginSuccessHandler;
+
+        // **Bắt buộc** inject hai bean này từ OAuth2ClientConfig
+        @Autowired
+        private ClientRegistrationRepository clientRegistrationRepository;
+
+        @Autowired
+        private OAuth2AuthorizedClientService authorizedClientService;
+
+        @Autowired
+        private CustomOAuth2UserService customOAuth2UserService;
 
         @Override
         protected void configure(HttpSecurity http) throws Exception {
             http
                     .csrf().disable()
-                    .antMatcher("/**")
+
+                    // 1) Phân quyền request
                     .authorizeRequests()
-                    // 1) Cho phép mọi truy cập GET/POST đến webhook
-                    .antMatchers(HttpMethod.POST, "/payment/webhook","/dialogflow/webhook").permitAll()
-                    // public: trang chính (chứa modal), và static resources
-                    .antMatchers("/", "/css/**", "/js/**",
-                            "/user/login",
-                            "/register",
-                            "/cart/**",
-                            "/product/**",
-                            "/chatbot/**",
-                            "/order/checkout",
-                            "/order/success",
-                            "/order/cancel").permitAll()
-                    // URL khác (ngoại trừ /admin/** đã bị AdminConfig chặn) yêu cầu role USER
-                    .anyRequest().hasRole("USER")
+                    .antMatchers(HttpMethod.POST, "/payment/webhook", "/dialogflow/webhook")
+                    .permitAll()
+                    .antMatchers(
+                            "/", "/css/**", "/js/**",            // Trang chính/public
+                            "/user/login", "/register",
+                            "/cart/**", "/product/**", "/chatbot/**",
+                            "/order/checkout", "/order/success", "/order/cancel"
+                    ).permitAll()
+                    .antMatchers("/oauth2/**", "/login/oauth2/**")
+                    .permitAll()
+                    .anyRequest()
+                    .hasRole("USER")
                     .and()
+
+                    // 2) OAuth2 Login (Google) – PHẢI gọi hai bean bên dưới
+                    .oauth2Login()
+                    .clientRegistrationRepository(clientRegistrationRepository)
+                    .authorizedClientService(authorizedClientService)
+                    .loginPage("/")   // nếu chưa login → redirect về "/"
+                    .userInfoEndpoint()
+                    .userService(customOAuth2UserService)
+                    .and()
+                    .defaultSuccessUrl("/", true)
+                    .failureUrl("/?showLogin=true&error")
+                    .and()
+
+                    // 3) Form Login cho USER (modal trên "/")
                     .formLogin()
-                        .loginPage("/")               // GET trang chính chứa modal
-                        .loginProcessingUrl("/user/login") // POST form modal gửi đến
-                        .usernameParameter("email")          // đọc trường email
-                        .passwordParameter("password")       // đọc trường password
-                        .successHandler(userLoginSuccessHandler)   // <–– dùng handler custom
-                        .failureUrl("/?showLogin=true&error")
+                    .loginPage("/")                  // GET "/" show modal login
+                    .loginProcessingUrl("/user/login") // POST form đến "/user/login"
+                    .usernameParameter("email")
+                    .passwordParameter("password")
+                    .successHandler(userLoginSuccessHandler)
+                    .failureUrl("/?showLogin=true&error")
                     .permitAll()
                     .and()
+
+                    // 4) Logout cho USER
                     .logout()
                     .logoutUrl("/logout")
                     .logoutSuccessUrl("/?logout")
                     .permitAll()
                     .and()
+
+                    // 5) 403 USER
                     .exceptionHandling()
-                    .accessDeniedPage("/403")
-                    .and()
-                    .csrf().disable();
+                    .accessDeniedPage("/403");
         }
 
         @Override
         protected void configure(AuthenticationManagerBuilder auth) throws Exception {
             auth.userDetailsService(userDetailsService)
-                    .passwordEncoder(_passwordEncoder);  // Sử dụng PasswordEncoder
+                    .passwordEncoder(passwordEncoder);
         }
     }
 }

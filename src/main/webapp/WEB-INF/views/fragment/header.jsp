@@ -144,6 +144,12 @@
                     <button type="submit" class="btn btn-success">Đăng ký</button>
                 </div>
             </form:form>
+            <div class="text-center my-3">
+                <p>Hoặc</p>
+                <a href="<c:url value='/oauth2/authorization/google'/>" class="btn btn-danger">
+                    <i class="bi bi-google"></i> Đăng nhập với Google
+                </a>
+            </div>
         </div>
     </div>
 </div>

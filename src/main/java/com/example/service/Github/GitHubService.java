@@ -70,7 +70,8 @@ public class GitHubService {
         HttpEntity<Map<String,Object>> req = new HttpEntity<>(body, headers);
 
         try {
-            ParameterizedTypeReference<Map<String, Object>> typeRef = new ParameterizedTypeReference<>() {};
+            ParameterizedTypeReference<Map<String, Object>> typeRef =
+                    new ParameterizedTypeReference<Map<String, Object>>() { };
             ResponseEntity<Map<String, Object>> response = rest.exchange(url, HttpMethod.PUT, req, typeRef);
 
             validateResponse(response);
