@@ -62,22 +62,17 @@ public class UserLoginSuccessHandler implements AuthenticationSuccessHandler {
                 }
             }
 
-
         // Lưu cart mới (DatabaseCartService) vào session thay cho giỏ cũ
         request.getSession().setAttribute("cart", dbCartService);
 
         // Tiếp tục xử lý redirect hoặc logic khác nếu cần
-        authentication.getAuthorities().forEach(grantedAuthority -> {
-            try {
-                if (grantedAuthority.getAuthority().equals("ROLE_ADMIN") || grantedAuthority.getAuthority().equals("ROLE_MANAGER")) {
-                    response.sendRedirect("/admin/");
-                } else {
-                    response.sendRedirect("/");
+        boolean isAdmin = authentication.getAuthorities().stream()
+                .anyMatch(a ->
+                        a.getAuthority().equals("ROLE_ADMIN") ||
+                                a.getAuthority().equals("ROLE_MANAGER")
+                );
+        String targetUrl = isAdmin ? "/admin/" : "/";
+        response.sendRedirect(request.getContextPath() + targetUrl);
 
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        });
     }
 }

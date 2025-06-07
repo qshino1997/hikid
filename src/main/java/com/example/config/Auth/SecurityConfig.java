@@ -1,6 +1,5 @@
 package com.example.config.Auth;
 
-import com.example.config.Auth.Google.CustomOAuth2UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -15,8 +14,14 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 // OAuth2 imports
-import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
-import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.filter.OncePerRequestFilter;
+
+import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 
 @Configuration
 @EnableWebSecurity
@@ -54,6 +59,7 @@ public class SecurityConfig {
                     // Chỉ apply cho mọi URL bắt đầu /admin/
                     .requestMatcher(request -> request.getRequestURI().startsWith("/admin/"))
                     .authorizeRequests()
+                    .antMatchers(HttpMethod.POST, "/payment/webhook", "/dialogflow/webhook").permitAll()
                     .antMatchers("/admin/login").permitAll()
                     .anyRequest().hasAnyRole("ADMIN", "MANAGER")
                     .and()
@@ -93,59 +99,47 @@ public class SecurityConfig {
     @Configuration
     @Order(2)
     public static class UserSecurityConfig extends WebSecurityConfigurerAdapter {
+        private final CustomUserDetailsService userDetailsService;
+        private final PasswordEncoder passwordEncoder;
+        private final UserLoginSuccessHandler userLoginSuccessHandler;
+        private final CustomOAuth2UserService customOAuth2UserService;
 
-        @Autowired
-        private CustomUserDetailsService userDetailsService;
-
-        @Autowired
-        private PasswordEncoder passwordEncoder;
-
-        @Autowired
-        private UserLoginSuccessHandler userLoginSuccessHandler;
-
-        // **Bắt buộc** inject hai bean này từ OAuth2ClientConfig
-        @Autowired
-        private ClientRegistrationRepository clientRegistrationRepository;
-
-        @Autowired
-        private OAuth2AuthorizedClientService authorizedClientService;
-
-        @Autowired
-        private CustomOAuth2UserService customOAuth2UserService;
+        public UserSecurityConfig(CustomUserDetailsService userDetailsService,
+                                  PasswordEncoder passwordEncoder,
+                                  UserLoginSuccessHandler userLoginSuccessHandler,
+                                  CustomOAuth2UserService customOAuth2UserService) {
+            this.userDetailsService = userDetailsService;
+            this.passwordEncoder = passwordEncoder;
+            this.userLoginSuccessHandler = userLoginSuccessHandler;
+            this.customOAuth2UserService = customOAuth2UserService;
+        }
 
         @Override
         protected void configure(HttpSecurity http) throws Exception {
             http
                     .csrf().disable()
-
                     // 1) Phân quyền request
                     .authorizeRequests()
                     .antMatchers(HttpMethod.POST, "/payment/webhook", "/dialogflow/webhook")
                     .permitAll()
                     .antMatchers(
-                            "/", "/css/**", "/js/**",            // Trang chính/public
+                            "/","/login", "/css/**", "/js/**",
                             "/user/login", "/register",
                             "/cart/**", "/product/**", "/chatbot/**",
                             "/order/checkout", "/order/success", "/order/cancel"
+                            , "/login/oauth2/code/google", "/oauth2/**", "order/history"
                     ).permitAll()
-                    .antMatchers("/oauth2/**", "/login/oauth2/**")
-                    .permitAll()
-                    .anyRequest()
-                    .hasRole("USER")
+                    .antMatchers("/user/profile").hasRole("USER")
                     .and()
-
                     // 2) OAuth2 Login (Google) – PHẢI gọi hai bean bên dưới
-                    .oauth2Login()
-                    .clientRegistrationRepository(clientRegistrationRepository)
-                    .authorizedClientService(authorizedClientService)
-                    .loginPage("/")   // nếu chưa login → redirect về "/"
-                    .userInfoEndpoint()
-                    .userService(customOAuth2UserService)
-                    .and()
-                    .defaultSuccessUrl("/", true)
-                    .failureUrl("/?showLogin=true&error")
-                    .and()
-
+                    .oauth2Login(oauth2 -> oauth2
+                            .userInfoEndpoint(userInfo ->
+                                    userInfo
+                                            .userService(customOAuth2UserService)
+                            )
+                            .successHandler(userLoginSuccessHandler)
+                            .failureUrl("/?showLogin=true&error")
+                    )
                     // 3) Form Login cho USER (modal trên "/")
                     .formLogin()
                     .loginPage("/")                  // GET "/" show modal login

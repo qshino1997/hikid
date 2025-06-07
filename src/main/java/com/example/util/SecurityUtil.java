@@ -7,6 +7,7 @@ import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -18,15 +19,14 @@ public class SecurityUtil {
     /**
      * Trả về CustomUserDetails nếu đã authenticate, ngược lại trả về null
      */
-    public UserDetails getCurrentUserDetails() {
+    private Object getPrincipal() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth != null
-                && auth.isAuthenticated()
-                && auth.getPrincipal() instanceof UserDetails
-                && !(auth instanceof AnonymousAuthenticationToken)) {
-            return (UserDetails) auth.getPrincipal();
+        if (auth == null
+                || !auth.isAuthenticated()
+                || auth instanceof AnonymousAuthenticationToken) {
+            return null;
         }
-        return null;
+        return auth.getPrincipal();
     }
 
     /**
@@ -37,6 +37,7 @@ public class SecurityUtil {
         if (email == null) {
             return null;
         }
+        // Giả sử userService.findByEmail(email) trả về Optional<User>
         return userService.findByEmail(email).getId();
     }
 
@@ -44,8 +45,14 @@ public class SecurityUtil {
      * Trả về username (email) nếu đã login, ngược lại trả về null
      */
     public String getCurrentEmail() {
-        UserDetails ud = getCurrentUserDetails();
-        return (ud != null ? ud.getUsername() : null);
+        Object principal = getPrincipal();
+        if (principal instanceof UserDetails) {
+            return ((UserDetails) principal).getUsername();
+        }
+        if (principal instanceof OAuth2User) {
+            return ((OAuth2User) principal).getAttribute("email");
+        }
+        return null;
     }
 
 }

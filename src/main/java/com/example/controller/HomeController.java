@@ -51,87 +51,8 @@ public class HomeController {
     @Autowired
     private RoleService roleService;
 
-    @Autowired
-    @Qualifier("databaseCartService")
-    private ObjectProvider<CartService> dbCartProvider;
-
-    @Autowired
-    @Qualifier("sessionCartService")
-    private SessionCartService sessionCartService;
-
     @GetMapping("/")
-    public String home(Model model, @AuthenticationPrincipal OAuth2User oauth2User,
-                       Authentication authentication,
-                       HttpServletRequest request){
-
-        // 1) Kiểm tra xem authentication có thực sự là OAuth2AuthenticationToken không
-        if (authentication instanceof OAuth2AuthenticationToken) {
-            OAuth2AuthenticationToken oauthToken = (OAuth2AuthenticationToken) authentication;
-            oauth2User = (OAuth2User) oauthToken.getPrincipal();
-
-            // Lấy thông tin email, name, registrationId
-            String email = oauth2User.getAttribute("email");
-            String name  = oauth2User.getAttribute("name");
-            String registrationId = oauthToken.getAuthorizedClientRegistrationId();
-
-            // Tìm hoặc tạo mới User theo email
-            User user = userService.findByEmail(email);
-            if (user == null) {
-                user = new User();
-                user.setEmail(email);
-                user.setUsername(name);
-                user.setAuth_provider(registrationId);
-                Role defaultRole = roleService.findById(3);
-                if (defaultRole != null) {
-                    user.getRoles().add(defaultRole);
-                }
-                user.setPassword(passwordEncoder.encode("123456"));
-                userService.saveOrUpdate(user);
-            }
-            else {
-                // Nếu user đã có sẵn, kiểm tra xem có phải ADMIN không
-                boolean isAdmin = user.getRoles().stream()
-                        .anyMatch(r -> r.getName().equalsIgnoreCase("admin"));
-                if (!isAdmin) {
-                    boolean needUpdate = false;
-                    if (!name.equals(user.getUsername())) {
-                        user.setUsername(name);
-                        needUpdate = true;
-                    }
-                    if (user.getAuth_provider() == null) {
-                        user.setAuth_provider(registrationId);
-                        needUpdate = true;
-                    }
-                    if (needUpdate) {
-                        userService.saveOrUpdate(user);
-                    }
-                }
-
-                // Lấy instance prototype của bean databaseCartService
-                CartService dbCartService = dbCartProvider.getObject();
-
-                dbCartService.initForUser(user.getId());
-
-                // Lấy giỏ hàng session từ session (không autowire trực tiếp)
-                for (CartItemDto it : sessionCartService.getItems()) {
-                    dbCartService.addItem(it.getProduct(), it.getQuantity());
-                }
-
-                model.addAttribute("cart", dbCartService);
-                model.addAttribute("cartCount", dbCartService.getTotalQuantity());
-
-                sessionCartService.clear();
-            }
-
-            // Build lại AuthenticationToken mới để giữ session đã xác thực
-            List<SimpleGrantedAuthority> authorities = user.getRoles().stream()
-                    .map(role -> new SimpleGrantedAuthority("ROLE_" + role.getName().toUpperCase()))
-                    .collect(Collectors.toList());
-            UsernamePasswordAuthenticationToken newAuth =
-                    getUsernamePasswordAuthenticationToken(user, authorities);
-            SecurityContextHolder.getContext().setAuthentication(newAuth);
-        }
-
+    public String home(Model model){
         List<Category> categories = categoryService.getRootCategoriesWithSubs();
         List<ProductDto> milkList = productService.getMaxProducesBySix(3);
         List<ProductDto> vitaminList = productService.getMaxProducesBySix(4);
@@ -151,23 +72,6 @@ public class HomeController {
 
         return "home";
     }
-
-    private static UsernamePasswordAuthenticationToken getUsernamePasswordAuthenticationToken(User user, List<SimpleGrantedAuthority> authorities) {
-        UserDetails userDetails = new org.springframework.security.core.userdetails.User(
-                user.getEmail(),                // username
-                user.getPassword(),             // password (đã mã hóa, nhưng không dùng để so sánh lúc này)
-                authorities                     // danh sách GrantedAuthority (ví dụ ROLE_USER)
-        );
-
-        UsernamePasswordAuthenticationToken newAuth =
-                new UsernamePasswordAuthenticationToken(
-                        userDetails,                // principal là UserDetails
-                        null,                       // credentials = null vì đã xác thực qua OAuth2
-                        userDetails.getAuthorities()// authorities
-                );
-        return newAuth;
-    }
-
 
     @InitBinder
     public void initBinder(WebDataBinder binder) {
