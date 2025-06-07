@@ -1,5 +1,6 @@
 package com.example.service.impl;
 
+import com.example.config.Mail.MailService;
 import com.example.dao.OrderDao;
 import com.example.dto.CartItemDto;
 import com.example.entity.Order;
@@ -8,14 +9,17 @@ import com.example.entity.Product;
 import com.example.service.Cart.CartService;
 import com.example.service.OrderService;
 import com.example.service.ProductService;
+import com.example.service.UserService;
 import com.example.util.CartUtil;
 import com.example.util.SecurityUtil;
 import com.paypal.api.payments.*;
 import com.paypal.base.rest.APIContext;
 import com.paypal.base.rest.PayPalRESTException;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.mail.MailException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,6 +28,7 @@ import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @Transactional(rollbackFor = Exception.class)
 public class OrderServiceImpl implements OrderService {
@@ -38,6 +43,12 @@ public class OrderServiceImpl implements OrderService {
 
     @Autowired
     private ProductService productService;
+
+    @Autowired
+    private MailService mailService;
+
+    @Autowired
+    private UserService userService;
 
     @Autowired
     private CartUtil cartUtil;
@@ -97,8 +108,8 @@ public class OrderServiceImpl implements OrderService {
         RedirectUrls urls = new RedirectUrls()
 //                .setCancelUrl("https://hikid.onrender.com/cart")
 //                .setReturnUrl("https://hikid.onrender.com/order/success");
-                .setCancelUrl("https://4996-2405-4802-a3d6-0-c5ec-e0c-a5cd-cd78.ngrok-free.app/order/cancel")
-                .setReturnUrl("https://4996-2405-4802-a3d6-0-c5ec-e0c-a5cd-cd78.ngrok-free.app/order/success");
+                .setCancelUrl("https://7909-2405-4802-a31f-f80-7cad-ad87-37b8-8cf2.ngrok-free.app/order/cancel")
+                .setReturnUrl("https://7909-2405-4802-a31f-f80-7cad-ad87-37b8-8cf2.ngrok-free.app/order/success");
         Payment payment = new Payment()
                 .setIntent("sale")
                 .setPayer(payer)
@@ -148,12 +159,24 @@ public class OrderServiceImpl implements OrderService {
             // set status = “PAID”
             order.setStatus("PAID");
             orderDao.save(order);
-
             // Có thể gửi mail, log, push notification…
-
+            sendConfirmationMail(order);
         } else {
             // Log: không tìm thấy order nào với paymentId này
             System.err.println("Webhook: Order not found for paymentId= " + paymentId);
+        }
+    }
+
+    private void sendConfirmationMail(Order order) {
+        String email = userService.findById(order.getUser_id()).getEmail();
+        try {
+            mailService.sendSimpleMail(
+                    email,
+                    "Xác nhận thanh toán",
+                    "Đơn hàng #" + order.getPayment_id() + " của bạn đã được thanh toán. Chúng tôi sẽ giao hàng sớm nhất có thể."
+            );
+        } catch (MailException ex) {
+            log.error("Gửi mail xác nhận thanh toán thất bại cho đơn {}: {}", order.getPayment_id(), ex.getMessage());
         }
     }
 

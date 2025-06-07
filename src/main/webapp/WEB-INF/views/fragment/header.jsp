@@ -56,7 +56,7 @@
                         </button>
                     </li>
                     <li class="nav-item ms-2">
-                        <a href="<c:url value='/oauth2/authorization/google'/>" class="btn btn-danger">
+                        <a href="${pageContext.request.contextPath}/oauth2/authorization/google" class="btn btn-danger">
                             <i class="bi bi-google"></i> Đăng nhập với Google
                         </a>
                     </li>
@@ -69,10 +69,10 @@
                             Xin chào <sec:authentication property="principal.username"/>
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userMenu">
-                            <li><a class="dropdown-item" href="<c:url value='/user/profile'/>">Trang cá nhân</a></li>
-                            <li><a class="dropdown-item" href="<c:url value='/order/history'/>">Lịch sử đơn hàng</a></li>
+                            <li><a class="dropdown-item" href="${pageContext.request.contextPath}/user/profile">Trang cá nhân</a></li>
+                            <li><a class="dropdown-item" href="${pageContext.request.contextPath}/order/history">Lịch sử đơn hàng</a></li>
                             <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item" href="<c:url value='/logout'/>">Đăng xuất</a></li>
+                            <li><a class="dropdown-item" href="${pageContext.request.contextPath}/logout">Đăng xuất</a></li>
                         </ul>
                     </li>
                 </sec:authorize>
@@ -150,7 +150,7 @@
                 </div>
             </form:form>
             <div class="text-center my-3">
-                <a href="<c:url value='/oauth2/authorization/google'/>" class="btn btn-danger">
+                <a href="${pageContext.request.contextPath}/oauth2/authorization/google" class="btn btn-danger">
                     <i class="bi bi-google"></i> Đăng nhập với Google
                 </a>
             </div>
